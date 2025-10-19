@@ -6,11 +6,21 @@
 
 ### Run
 
+To run the indexer:
+
 ```bash
 pnpm dev
 ```
 
 Visit http://localhost:8080 to see the GraphQL Playground, local password is `testing`.
+
+To run the frontend:
+
+```bash
+node src/server.js
+```
+
+Visti http://localhost:3000.
 
 ### Generate files from `config.yaml` or `schema.graphql`
 
