@@ -1,3 +1,5 @@
+ALL THE ASSETS ARE PLACEHOLDER
+
 # Rollup & Bridge Monitor
 
 An interactive React + TypeScript dashboard for visualising bridging activity across L2 networks. The UI animates transaction flow between bridge protocols and layer-2 destinations, and offers multiple overview modes for exploring the data.
