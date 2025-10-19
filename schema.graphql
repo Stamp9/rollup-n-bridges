@@ -1,0 +1,35 @@
+type ERC1967Proxy_Deposited {
+  id: ID!
+  block_number: Int!
+  _depositor: String!
+  _pool: String!
+  _commitment: BigInt!
+  _amount: BigInt!
+}
+
+type ERC1967Proxy_FeesWithdrawn {
+  id: ID!
+  block_number: Int!
+  _asset: String!
+  _recipient: String!
+  _amount: BigInt!
+}
+
+type ERC1967Proxy_RootUpdated {
+  id: ID!
+  block_number: Int!
+  _root: BigInt!
+  _ipfsCID: String!
+  _timestamp: BigInt!
+}
+
+type ERC1967Proxy_WithdrawalRelayed {
+  id: ID!
+  block_number: Int!
+  _relayer: String!
+  _recipient: String!
+  _asset: String!
+  _amount: BigInt!
+  _feeAmount: BigInt!
+}
+
