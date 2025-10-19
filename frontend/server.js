@@ -5,9 +5,11 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+const graphql = require('./graphql.js');
+
+const fetchLatestNativeDeposits = graphql.fetchLatestNativeDeposits;
+
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
-const GRAPHQL_URL = process.env.GRAPHQL_URL || 'http://localhost:8080/v1/graphql';
-const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET || 'testing';
 const OPTIMISM_RPC_URL = process.env.OPTIMISM_RPC_URL || 'https://mainnet.optimism.io';
 
 const indexPath = path.join(__dirname, 'index.html');
@@ -56,38 +58,6 @@ async function getOptimismHead() {
   return Number.parseInt(json.result, 16);
 }
 
-async function fetchLatestNativeDeposits(limit = 10) {
-  const query = `
-    query LatestNativeDeposits($limit: Int!) {
-      RelayDepository_RelayNativeDeposit(limit: $limit, order_by: {id: desc}) {
-        id
-        from
-        amount
-        event_id
-      }
-    }
-  `;
-
-  const res = await fetch(GRAPHQL_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': HASURA_ADMIN_SECRET,
-    },
-    body: JSON.stringify({ query, variables: { limit } }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(`GraphQL HTTP ${res.status}: ${text}`);
-  }
-  const json = await res.json();
-  if (json.errors) {
-    throw new Error(`GraphQL errors: ${JSON.stringify(json.errors)}`);
-  }
-  return json.data?.RelayDepository_RelayNativeDeposit ?? [];
-}
-
 const server = http.createServer(async (req, res) => {
   try {
     if (req.method === 'GET' && (req.url === '/' || req.url === '/index.html')) {
@@ -107,7 +77,8 @@ const server = http.createServer(async (req, res) => {
         }
 
         if (lastQueriedBlock === 0) {
-          const latest = await fetchLatestNativeDeposits(10);
+          const json = await graphql.fetchErc20Deposits(10);
+          const latest = json.data?.RelayDepository_RelayNativeDeposit ?? [];
           const maxFromData = latest
             .map((d) => parseBlockFromId(d.id))
             .filter((n) => Number.isFinite(n))
@@ -120,7 +91,8 @@ const server = http.createServer(async (req, res) => {
         }
 
         const windowLimit = 100;
-        const windowItems = await fetchLatestNativeDeposits(windowLimit);
+        const json = await graphql.fetchLatestNativeDeposits(windowLimit);
+        const windowItems = json.data?.RelayDepository_RelayNativeDeposit ?? [];
         const rangeStart = lastQueriedBlock;
         const rangeEnd = headBlock || rangeStart;
         const inRange = windowItems.filter((d) => {
@@ -152,5 +124,5 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Frontend listening on http://localhost:${PORT}`);
-  console.log(`Using GraphQL at ${GRAPHQL_URL}`);
+  console.log(`Using GraphQL at ${graphql.GRAPHQL_URL}`);
 });
