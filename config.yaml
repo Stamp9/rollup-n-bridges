@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: envio-indexer
+networks:
+- id: 10
+  start_block: 0
+  contracts:
+  - name: RelayDepository
+    address:
+    - 0x4cD00E387622C35bDDB9b4c962C136462338BC31
+    handler: src/EventHandlers.ts
+    events:
+    - event: RelayErc20Deposit(address from, address token, uint256 amount, bytes32 id)
+    - event: RelayNativeDeposit(address from, uint256 amount, bytes32 id)
+unordered_multichain_mode: true
+preload_handlers: true

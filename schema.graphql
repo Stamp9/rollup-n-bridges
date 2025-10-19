@@ -1,0 +1,19 @@
+type RelayDepository_RelayErc20Deposit {
+  id: ID!
+  chain_id: String!
+  block_number: Int!
+  from: String!
+  token: String!
+  amount: BigInt!
+  event_id: String!
+}
+
+type RelayDepository_RelayNativeDeposit {
+  id: ID!
+  chain_id: String!
+  block_number: Int!
+  from: String!
+  amount: BigInt!
+  event_id: String!
+}
+
