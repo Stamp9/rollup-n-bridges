@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Optimism Bridge – Latest Deposits</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Optimism Bridge – Latest Deposits</h1>
+        <div class="endpoint">
+          <input id="latest-block" type="hidden" name="latestBlock" value="1" />
+          <button id="refresh"
+                  hx-get="/deposits-summary"
+                  hx-target="#deposits-table tbody"
+                  hx-include="#endpoint,#auth-key,#auth-val,#latest-block"
+          >Refresh</button>
+        </div>
+      </header>
+
+      <section>
+        <div id="status" class="status" style="display:none;">Loading…</div>
+        <div class="table-wrap">
+          <table id="deposits-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>From</th>
+                <th>To</th>
+                <th>L1 Token</th>
+                <th>L2 Token</th>
+                <th>Amount</th>
+                <th>
+                  Block
+                  <a href="#"
+                     hx-get="/deposits?sort=block&dir=desc"
+                     hx-target="#deposits-table tbody"
+                     hx-include="#endpoint,#auth-key,#auth-val,#latest-block"
+                     hx-indicator="#status"
+                     class="small"
+                  >▼</a>
+                  <a href="#"
+                     hx-get="/deposits?sort=block&dir=asc"
+                     hx-target="#deposits-table tbody"
+                     hx-include="#endpoint,#auth-key,#auth-val,#latest-block"
+                     hx-indicator="#status"
+                     class="small"
+                  >▲</a>
+                </th>
+              </tr>
+            </thead>
+            <tbody
+              hx-get="/deposits-summary"
+              hx-trigger="load, every 1s, refresh-options"
+              hx-target="this"
+              hx-include="#endpoint,#auth-key,#auth-val,#latest-block"
+              hx-indicator="#status"
+            >
+              <tr><td class="small" colspan="6">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  </body>
+  </html>

@@ -1,0 +1,71 @@
+type L2StandardBridge_DepositFinalized {
+  id: ID!
+  block_number: Int!
+  timestamp: Int!
+  l1Token: String!
+  l2Token: String!
+  from: String!
+  to: String!
+  amount: BigInt!
+  extraData: String!
+}
+
+type L2StandardBridge_ERC20BridgeFinalized {
+  id: ID!
+  block_number: Int!
+  timestamp: Int!
+  localToken: String!
+  remoteToken: String!
+  from: String!
+  to: String!
+  amount: BigInt!
+  extraData: String!
+}
+
+type L2StandardBridge_ERC20BridgeInitiated {
+  id: ID!
+  block_number: Int!
+  timestamp: Int!
+  localToken: String!
+  remoteToken: String!
+  from: String!
+  to: String!
+  amount: BigInt!
+  extraData: String!
+}
+
+type L2StandardBridge_ETHBridgeFinalized {
+  id: ID!
+  from: String!
+  to: String!
+  amount: BigInt!
+  extraData: String!
+}
+
+type L2StandardBridge_ETHBridgeInitiated {
+  id: ID!
+  block_number: Int!
+  timestamp: Int!
+  from: String!
+  to: String!
+  amount: BigInt!
+  extraData: String!
+}
+
+type L2StandardBridge_Initialized {
+  id: ID!
+  version: BigInt!
+}
+
+type L2StandardBridge_WithdrawalInitiated {
+  id: ID!
+  block_number: Int!
+  timestamp: Int!
+  l1Token: String!
+  l2Token: String!
+  from: String!
+  to: String!
+  amount: BigInt!
+  extraData: String!
+}
+

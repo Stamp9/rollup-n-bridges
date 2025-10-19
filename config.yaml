@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: envio-indexer
+networks:
+- id: 10
+  start_block: 140000000
+  contracts:
+  - name: L2StandardBridge
+    address:
+    - 0x4200000000000000000000000000000000000010
+    handler: src/EventHandlers.ts
+    events:
+    - event: DepositFinalized(address indexed l1Token, address indexed l2Token, address indexed from, address to, uint256 amount, bytes extraData)
+    - event: ERC20BridgeFinalized(address indexed localToken, address indexed remoteToken, address indexed from, address to, uint256 amount, bytes extraData)
+    - event: ERC20BridgeInitiated(address indexed localToken, address indexed remoteToken, address indexed from, address to, uint256 amount, bytes extraData)
+    - event: ETHBridgeFinalized(address indexed from, address indexed to, uint256 amount, bytes extraData)
+    - event: ETHBridgeInitiated(address indexed from, address indexed to, uint256 amount, bytes extraData)
+    - event: Initialized(uint8 version)
+    - event: WithdrawalInitiated(address indexed l1Token, address indexed l2Token, address indexed from, address to, uint256 amount, bytes extraData)
+unordered_multichain_mode: true
+preload_handlers: true
