@@ -8,26 +8,19 @@ contracts:
     - event: RelayErc20Deposit(address from, address token, uint256 amount, bytes32 id)
     - event: RelayNativeDeposit(address from, uint256 amount, bytes32 id)
 networks:
-<<<<<<< HEAD
 - id: 1 # Ethereum
-=======
-- id: 1 # EThereum
->>>>>>> d465ecf (merge relay stuff)
   start_block: 0
   contracts:
   - name: RelayDepository
     address: 0x4cD00E387622C35bDDB9b4c962C136462338BC31
 
-<<<<<<< HEAD
 - id: 10 # Optimism
   start_block: 0
   contracts:
   - name: RelayDepository
     address: 0x4cD00E387622C35bDDB9b4c962C136462338BC31
+
 - id: 8453 # Base
-=======
-- id: 10
->>>>>>> d465ecf (merge relay stuff)
   start_block: 0
   contracts:
   - name: RelayDepository
