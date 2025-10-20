@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { NetworkGraph } from "./components/NetworkGraph";
-import { BridgeOverview } from "./components/BridgeOverview";
 import { PiexelBridgeOverview } from "./components/PiexelBridgeOverview";
 import type { BridgeTx } from "./data/api";
 import { nodes } from "./data/model";

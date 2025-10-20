@@ -144,7 +144,7 @@ export const useBridgeData = (
       // Ignore sessionStorage errors; use pre-fetched initialLatestBlockNumber
     }
     return {
-      blockNumber: 140_000_000,
+      blockNumber: startBlock,
       links: [],
       layer2Flows: [],
       transactions: [],
