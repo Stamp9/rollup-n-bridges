@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 
 import islandSrc from "../assets/island.png";
 import temBgSrc from "../assets/tem_bg.png";
@@ -170,72 +170,6 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
 
   const activeTransactions = activeFlow?.transactions ?? [];
 
-  // Per-flow particle queues sourced from flow.transactions
-  type ActiveParticle = { id: string; token: string; amount: number; color: string; size: number; start: number };
-  type QueueState = { active: ActiveParticle[]; seen: Set<string> };
-  const queuesRef = useRef<Map<string, QueueState>>(new Map());
-  const [, setTick] = useState(0);
-  const getFlowKey = (bridgeId: string, destination: string) => `${bridgeId}::${destination}`;
-
-  const TX_DURATION_MS = 6_000;
-  const TICK_MS = 300;
-  const MAX_ACTIVE = 24;
-  const MAX_ENQUEUE_PER_TICK = 8;
-
-  useEffect(() => {
-    let cancelled = false;
-    const timer = window.setInterval(() => {
-      if (cancelled) return;
-      const now = Date.now();
-      let changed = false;
-      const map = queuesRef.current;
-
-      // Walk current flows (by protocol) and enqueue new txs into per-flow queues
-      bridgeSummaries.forEach(summary => {
-        summary.flows.forEach(flow => {
-          const key = getFlowKey(flow.bridgeId, flow.name);
-          let state = map.get(key);
-          if (!state) {
-            state = { active: [], seen: new Set<string>() };
-            map.set(key, state);
-          }
-          const seen = state.seen;
-          const actives = state.active;
-          // Enqueue a few unseen txs per tick
-          const newTxs = (flow.transactions ?? []).filter(tx => !seen.has(tx.id)).slice(0, MAX_ENQUEUE_PER_TICK);
-          if (newTxs.length > 0) {
-            newTxs.forEach(tx => {
-              const color = tokenColors[tx.token] ?? (destinationColorMap.get(flow.name) ?? fallbackDestinationColor);
-              const size = Math.max(5, Math.min(12, 5 + Math.log10(1 + Math.max(0, tx.amount))))
-              actives.push({ id: tx.id, token: tx.token, amount: tx.amount, color, size, start: now });
-              seen.add(tx.id);
-            });
-            changed = true;
-          }
-          // Prune expired
-          const before = actives.length;
-          state.active = actives.filter(p => now - p.start < TX_DURATION_MS);
-          if (state.active.length !== before) {
-            changed = true;
-          }
-          // Cap
-          if (state.active.length > MAX_ACTIVE) {
-            state.active.splice(0, state.active.length - MAX_ACTIVE);
-            changed = true;
-          }
-        });
-      });
-
-      if (changed) {
-        setTick(t => (t + 1) % 1_000_000);
-      }
-    }, TICK_MS);
-    return () => {
-      cancelled = true;
-      window.clearInterval(timer);
-    };
-  }, [bridgeSummaries, destinationColorMap]);
-
   const formatMillions = (value: number) => `${(value / 1_000_000).toFixed(2)}M`;
   const formatLatency = (value: number | undefined) => (value ? `${(value / 1000).toFixed(2)} s` : "—");
   const formatAmount = (token: string, amount: number) =>
@@ -340,11 +274,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                         const indicatorSize = 16;
                         const indicatorX = labelX - indicatorSize - 8;
                         const indicatorY = labelY - indicatorSize / 2;
-                        const queueKey = getFlowKey(flow.bridgeId, flow.name);
-                        const activeParticles = (queuesRef.current.get(queueKey)?.active ?? []);
-
                         return (
-
                           <g
                             key={`piexel-${protocol.name}-${flow.name}`}
                             onMouseEnter={() => setHoveredKey({ bridgeId: flow.bridgeId, destination: flow.name })}
@@ -371,19 +301,6 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             ) : (
                               <TokenParticle path={path} delay={delay} color={flow.color} duration={6} size={size} />
                             )}
-                            {/* Active per-transaction particles from queue (expire after 6s) */}
-                            {activeParticles.map((p, i) => {
-const txDelay = delay + 0.15 * i;
-                                return (
-                              <TokenParticle
-                                key={`txp-${p.id}-${p.start}`}
-                                path={path}
-                                delay={txDelay}
-                                color={p.color}
-                                duration={6}
-                                size={p.size}
-                              />
-                            )} )}
                         {flow.name === "Base" ? (
                           <image
                             href={catWaitingSrc}

@@ -1,6 +1,6 @@
 type RelayDepository_RelayErc20Deposit {
   id: ID!
-  chain_id: String!
+  chain_id: Int!
   block_number: Int!
   from: String!
   token: String!
@@ -10,7 +10,7 @@ type RelayDepository_RelayErc20Deposit {
 
 type RelayDepository_RelayNativeDeposit {
   id: ID!
-  chain_id: String!
+  chain_id: Int!
   block_number: Int!
   from: String!
   amount: BigInt!

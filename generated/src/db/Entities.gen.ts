@@ -10,6 +10,7 @@ export type whereOperations<entity,fieldType> = { readonly eq: (_1:fieldType) =>
 export type RelayDepository_RelayErc20Deposit_t = {
   readonly amount: bigint; 
   readonly block_number: number; 
+  readonly chain_id: number; 
   readonly event_id: string; 
   readonly from: string; 
   readonly id: id; 
@@ -21,6 +22,7 @@ export type RelayDepository_RelayErc20Deposit_indexedFieldOperations = {};
 export type RelayDepository_RelayNativeDeposit_t = {
   readonly amount: bigint; 
   readonly block_number: number; 
+  readonly chain_id: number; 
   readonly event_id: string; 
   readonly from: string; 
   readonly id: id

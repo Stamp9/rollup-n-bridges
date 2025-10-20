@@ -12,7 +12,7 @@ type contractRegistrations = {
 }
 
 @genType
-type entityHandlerContext<'entity, 'indexedFieldOperations> = {
+type entityLoaderContext<'entity, 'indexedFieldOperations> = {
   get: id => promise<option<'entity>>,
   getOrThrow: (id, ~message: string=?) => promise<'entity>,
   getWhere: 'indexedFieldOperations,
@@ -21,13 +21,24 @@ type entityHandlerContext<'entity, 'indexedFieldOperations> = {
   deleteUnsafe: id => unit,
 }
 
+@genType.import(("./Types.ts", "LoaderContext"))
+type loaderContext = {
+  log: Envio.logger,
+  effect: 'input 'output. (Envio.effect<'input, 'output>, 'input) => promise<'output>,
+  isPreload: bool,
+  @as("RelayDepository_RelayErc20Deposit") relayDepository_RelayErc20Deposit: entityLoaderContext<Entities.RelayDepository_RelayErc20Deposit.t, Entities.RelayDepository_RelayErc20Deposit.indexedFieldOperations>,
+  @as("RelayDepository_RelayNativeDeposit") relayDepository_RelayNativeDeposit: entityLoaderContext<Entities.RelayDepository_RelayNativeDeposit.t, Entities.RelayDepository_RelayNativeDeposit.indexedFieldOperations>,
+}
+
+@genType
+type entityHandlerContext<'entity> = Internal.entityHandlerContext<'entity>
+
 @genType.import(("./Types.ts", "HandlerContext"))
 type handlerContext = {
   log: Envio.logger,
   effect: 'input 'output. (Envio.effect<'input, 'output>, 'input) => promise<'output>,
-  isPreload: bool,
-  @as("RelayDepository_RelayErc20Deposit") relayDepository_RelayErc20Deposit: entityHandlerContext<Entities.RelayDepository_RelayErc20Deposit.t, Entities.RelayDepository_RelayErc20Deposit.indexedFieldOperations>,
-  @as("RelayDepository_RelayNativeDeposit") relayDepository_RelayNativeDeposit: entityHandlerContext<Entities.RelayDepository_RelayNativeDeposit.t, Entities.RelayDepository_RelayNativeDeposit.indexedFieldOperations>,
+  @as("RelayDepository_RelayErc20Deposit") relayDepository_RelayErc20Deposit: entityHandlerContext<Entities.RelayDepository_RelayErc20Deposit.t>,
+  @as("RelayDepository_RelayNativeDeposit") relayDepository_RelayNativeDeposit: entityHandlerContext<Entities.RelayDepository_RelayNativeDeposit.t>,
 }
 
 //Re-exporting types for backwards compatability
@@ -175,6 +186,23 @@ module HandlerTypes = {
   @genType
   type contractRegister<'eventArgs> = Internal.genericContractRegister<contractRegisterArgs<'eventArgs>>
 
+  @genType
+  type loaderArgs<'eventArgs> = Internal.genericLoaderArgs<eventLog<'eventArgs>, loaderContext>
+  @genType
+  type loader<'eventArgs, 'loaderReturn> = Internal.genericLoader<loaderArgs<'eventArgs>, 'loaderReturn>
+  
+  @genType
+  type handlerArgs<'eventArgs, 'loaderReturn> = Internal.genericHandlerArgs<eventLog<'eventArgs>, handlerContext, 'loaderReturn>
+
+  @genType
+  type handler<'eventArgs, 'loaderReturn> = Internal.genericHandler<handlerArgs<'eventArgs, 'loaderReturn>>
+
+  @genType
+  type loaderHandler<'eventArgs, 'loaderReturn, 'eventFilters> = Internal.genericHandlerWithLoader<
+    loader<'eventArgs, 'loaderReturn>,
+    handler<'eventArgs, 'loaderReturn>,
+    'eventFilters
+  >
 
   @genType
   type eventConfig<'eventFilters> = Internal.eventOptions<'eventFilters>
@@ -191,8 +219,9 @@ module type Event = {
 @genType.import(("./bindings/OpaqueTypes.ts", "HandlerWithOptions"))
 type fnWithEventConfig<'fn, 'eventConfig> = ('fn, ~eventConfig: 'eventConfig=?) => unit
 
-type handlerWithOptions<'eventArgs, 'eventFilters> = fnWithEventConfig<
-  Internal.genericHandler<'eventArgs>,
+@genType
+type handlerWithOptions<'eventArgs, 'loaderReturn, 'eventFilters> = fnWithEventConfig<
+  HandlerTypes.handler<'eventArgs, 'loaderReturn>,
   HandlerTypes.eventConfig<'eventFilters>,
 >
 
@@ -218,15 +247,69 @@ module MakeRegister = (Event: Event) => {
     Internal.genericHandler<Internal.genericHandlerArgs<Event.event, handlerContext, unit>>,
     HandlerTypes.eventConfig<Event.eventFilters>,
   > = (handler, ~eventConfig=?) => {
+    Event.handlerRegister->EventRegister.setHandler(args => {
+      if args.context.isPreload {
+        Promise.resolve()
+      } else {
+        handler(
+          args->(
+            Utils.magic: Internal.genericHandlerArgs<
+              Event.event,
+              Internal.handlerContext,
+              'loaderReturn,
+            > => Internal.genericHandlerArgs<Event.event, handlerContext, unit>
+          ),
+        )
+      }
+    }, ~eventOptions=eventConfig)
+  }
+
+  let handlerWithLoader = (
+    eventConfig: Internal.genericHandlerWithLoader<
+      Internal.genericLoader<Internal.genericLoaderArgs<Event.event, loaderContext>, 'loaderReturn>,
+      Internal.genericHandler<
+        Internal.genericHandlerArgs<Event.event, handlerContext, 'loaderReturn>,
+      >,
+      Event.eventFilters,
+    >,
+  ) => {
     Event.handlerRegister->EventRegister.setHandler(
-      handler->(
-        Utils.magic: Internal.genericHandler<
-          Internal.genericHandlerArgs<Event.event, handlerContext, unit>,
-        > => Internal.genericHandler<
-          Internal.genericHandlerArgs<Event.event, Internal.handlerContext, 'a>,
-        >
-      ),
-      ~eventOptions=eventConfig,
+      args => {
+        let promise = eventConfig.loader(
+          args->(
+            Utils.magic: Internal.genericHandlerArgs<
+              Event.event,
+              Internal.handlerContext,
+              'loaderReturn,
+            > => Internal.genericLoaderArgs<Event.event, loaderContext>
+          ),
+        )
+        if args.context.isPreload {
+          promise->Promise.ignoreValue
+        } else {
+          promise->Promise.then(loaderReturn => {
+            (args->Obj.magic)["loaderReturn"] = loaderReturn
+            eventConfig.handler(
+              args->(
+                Utils.magic: Internal.genericHandlerArgs<
+                  Event.event,
+                  Internal.handlerContext,
+                  'loaderReturn,
+                > => Internal.genericHandlerArgs<Event.event, handlerContext, 'loaderReturn>
+              ),
+            )
+          })
+        }
+      },
+      ~eventOptions=switch eventConfig {
+      | {wildcard: ?None, eventFilters: ?None} => None
+      | _ =>
+        Some({
+          wildcard: ?eventConfig.wildcard,
+          eventFilters: ?eventConfig.eventFilters,
+          preRegisterDynamicContracts: ?eventConfig.preRegisterDynamicContracts,
+        })
+      },
     )
   }
 }
@@ -234,7 +317,7 @@ module MakeRegister = (Event: Event) => {
 module RelayDepository = {
 let abi = Ethers.makeAbi((%raw(`[{"type":"event","name":"RelayErc20Deposit","inputs":[{"name":"from","type":"address","indexed":false},{"name":"token","type":"address","indexed":false},{"name":"amount","type":"uint256","indexed":false},{"name":"id","type":"bytes32","indexed":false}],"anonymous":false},{"type":"event","name":"RelayNativeDeposit","inputs":[{"name":"from","type":"address","indexed":false},{"name":"amount","type":"uint256","indexed":false},{"name":"id","type":"bytes32","indexed":false}],"anonymous":false}]`): Js.Json.t))
 let eventSignatures = ["RelayErc20Deposit(address from, address token, uint256 amount, bytes32 id)", "RelayNativeDeposit(address from, uint256 amount, bytes32 id)"]
-@genType type chainId = [#10]
+@genType type chainId = [#1 | #10]
 let contractName = "RelayDepository"
 
 module RelayErc20Deposit = {
@@ -268,9 +351,13 @@ type event = {
 }
 
 @genType
-type handlerArgs = Internal.genericHandlerArgs<event, handlerContext, unit>
+type loaderArgs = Internal.genericLoaderArgs<event, loaderContext>
 @genType
-type handler = Internal.genericHandler<handlerArgs>
+type loader<'loaderReturn> = Internal.genericLoader<loaderArgs, 'loaderReturn>
+@genType
+type handlerArgs<'loaderReturn> = Internal.genericHandlerArgs<event, handlerContext, 'loaderReturn>
+@genType
+type handler<'loaderReturn> = Internal.genericHandler<handlerArgs<'loaderReturn>>
 @genType
 type contractRegister = Internal.genericContractRegister<Internal.genericContractRegisterArgs<event, contractRegistrations>>
 
@@ -339,9 +426,13 @@ type event = {
 }
 
 @genType
-type handlerArgs = Internal.genericHandlerArgs<event, handlerContext, unit>
+type loaderArgs = Internal.genericLoaderArgs<event, loaderContext>
 @genType
-type handler = Internal.genericHandler<handlerArgs>
+type loader<'loaderReturn> = Internal.genericLoader<loaderArgs, 'loaderReturn>
+@genType
+type handlerArgs<'loaderReturn> = Internal.genericHandlerArgs<event, handlerContext, 'loaderReturn>
+@genType
+type handler<'loaderReturn> = Internal.genericHandler<handlerArgs<'loaderReturn>>
 @genType
 type contractRegister = Internal.genericContractRegister<Internal.genericContractRegisterArgs<event, contractRegistrations>>
 
@@ -384,4 +475,4 @@ let register = (): Internal.evmEventConfig => {
 type chainId = int
 
 @genType
-type chain = [#10]
+type chain = [#1 | #10]

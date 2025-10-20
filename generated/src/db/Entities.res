@@ -46,6 +46,7 @@ module RelayDepository_RelayErc20Deposit = {
   type t = {
     amount: bigint,
     block_number: int,
+    chain_id: int,
     event_id: string,
     from: string,
     id: id,
@@ -55,6 +56,7 @@ module RelayDepository_RelayErc20Deposit = {
   let schema = S.object((s): t => {
     amount: s.field("amount", BigInt.schema),
     block_number: s.field("block_number", S.int),
+    chain_id: s.field("chain_id", S.int),
     event_id: s.field("event_id", S.string),
     from: s.field("from", S.string),
     id: s.field("id", S.string),
@@ -83,6 +85,16 @@ module RelayDepository_RelayErc20Deposit = {
       ),
       mkField(
       "block_number", 
+      Integer,
+      ~fieldSchema=S.int,
+      
+      
+      
+      
+      
+      ),
+      mkField(
+      "chain_id", 
       Integer,
       ~fieldSchema=S.int,
       
@@ -145,6 +157,7 @@ module RelayDepository_RelayNativeDeposit = {
   type t = {
     amount: bigint,
     block_number: int,
+    chain_id: int,
     event_id: string,
     from: string,
     id: id,
@@ -153,6 +166,7 @@ module RelayDepository_RelayNativeDeposit = {
   let schema = S.object((s): t => {
     amount: s.field("amount", BigInt.schema),
     block_number: s.field("block_number", S.int),
+    chain_id: s.field("chain_id", S.int),
     event_id: s.field("event_id", S.string),
     from: s.field("from", S.string),
     id: s.field("id", S.string),
@@ -180,6 +194,16 @@ module RelayDepository_RelayNativeDeposit = {
       ),
       mkField(
       "block_number", 
+      Integer,
+      ~fieldSchema=S.int,
+      
+      
+      
+      
+      
+      ),
+      mkField(
+      "chain_id", 
       Integer,
       ~fieldSchema=S.int,
       

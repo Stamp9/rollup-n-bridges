@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
 import type { BridgeTx } from "./api";
-import { fetchBridgeTxsSince, mapTxToVolume, fetchLatestBlockNumber } from "./api";
+import { fetchBridgeTxsSince, mapTxToVolume } from "./api";
 import { layer2Destinations } from "./model";
+import { initialLatestBlockNumber } from "./bootstrap";
 import type { Layer2Flow, Link, TokenFlow } from "./model";
 
 export const DEFAULT_HISTORY_WINDOW_MS = 60_000;
@@ -133,23 +134,29 @@ export const useBridgeData = (
   intervalMs: number = 10_000,
   historyWindowMs: number = DEFAULT_HISTORY_WINDOW_MS,
 ) => {
-  const [state, setState] = useState<BridgeDataState>({
-    blockNumber: 0,
-    links: [],
-    layer2Flows: [],
-    transactions: [],
+  const SESSION_KEY = 'op-tip-block';
+  const [state, setState] = useState<BridgeDataState>(() => {
+    let startBlock = initialLatestBlockNumber;
+    try {
+      const cached = Number.parseInt(sessionStorage.getItem(SESSION_KEY) ?? '', 10);
+      startBlock = Number.isFinite(cached) && cached > 0 ? cached : initialLatestBlockNumber;
+    } catch {
+      // Ignore sessionStorage errors; use pre-fetched initialLatestBlockNumber
+    }
+    return {
+      blockNumber: startBlock,
+      links: [],
+      layer2Flows: [],
+      transactions: [],
+    };
   });
 
   useEffect(() => {
     let cancelled = false;
     let timerId: number | undefined;
-    let nextBlockToFetch: number | undefined;
 
     const fetchAndUpdate = async () => {
-      if (nextBlockToFetch === undefined) {
-        return;
-      }
-      const response = await fetchBridgeTxsSince(nextBlockToFetch);
+      const response = await fetchBridgeTxsSince(state.blockNumber);
       if (cancelled) {
         return;
       }
@@ -158,6 +165,7 @@ export const useBridgeData = (
         const cutoff = Date.now() - historyWindowMs;
         const filteredTxs = mergedTxs.filter(tx => tx.timestamp >= cutoff);
         const { links, layer2Flows } = buildAggregatedData(filteredTxs, historyWindowMs);
+        console.log(response.blockNumber);
         return {
           blockNumber: response.blockNumber,
           links,
@@ -165,16 +173,20 @@ export const useBridgeData = (
           transactions: filteredTxs,
         };
       });
-      nextBlockToFetch = response.blockNumber;
+      try {
+        sessionStorage.setItem(SESSION_KEY, String(response.blockNumber));
+      } catch {
+        // ignore storage errors
+      }
     };
 
     const initialise = async () => {
-      const latest = await fetchLatestBlockNumber();
+      const cached = Number.parseInt(sessionStorage.getItem(SESSION_KEY) ?? '', 10);
+      const startBlock = Number.isFinite(cached) && cached > 0 ? cached : initialLatestBlockNumber;
       if (cancelled) {
         return;
       }
-      nextBlockToFetch = latest;
-      setState(prev => ({ ...prev, blockNumber: latest }));
+      setState(prev => ({ ...prev, blockNumber: startBlock }));
       await fetchAndUpdate();
       if (!cancelled && intervalMs > 0) {
         timerId = window.setInterval(fetchAndUpdate, intervalMs);

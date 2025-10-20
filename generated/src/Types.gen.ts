@@ -7,11 +7,15 @@ import type {HandlerContext as $$handlerContext} from './Types.ts';
 
 import type {HandlerWithOptions as $$fnWithEventConfig} from './bindings/OpaqueTypes.ts';
 
+import type {LoaderContext as $$loaderContext} from './Types.ts';
+
 import type {RelayDepository_RelayErc20Deposit_t as Entities_RelayDepository_RelayErc20Deposit_t} from '../src/db/Entities.gen';
 
 import type {RelayDepository_RelayNativeDeposit_t as Entities_RelayDepository_RelayNativeDeposit_t} from '../src/db/Entities.gen';
 
 import type {SingleOrMultiple as $$SingleOrMultiple_t} from './bindings/OpaqueTypes';
+
+import type {entityHandlerContext as Internal_entityHandlerContext} from 'envio/src/Internal.gen';
 
 import type {eventOptions as Internal_eventOptions} from 'envio/src/Internal.gen';
 
@@ -23,7 +27,13 @@ import type {genericEvent as Internal_genericEvent} from 'envio/src/Internal.gen
 
 import type {genericHandlerArgs as Internal_genericHandlerArgs} from 'envio/src/Internal.gen';
 
+import type {genericHandlerWithLoader as Internal_genericHandlerWithLoader} from 'envio/src/Internal.gen';
+
 import type {genericHandler as Internal_genericHandler} from 'envio/src/Internal.gen';
+
+import type {genericLoaderArgs as Internal_genericLoaderArgs} from 'envio/src/Internal.gen';
+
+import type {genericLoader as Internal_genericLoader} from 'envio/src/Internal.gen';
 
 import type {logger as Envio_logger} from 'envio/src/Envio.gen';
 
@@ -36,7 +46,7 @@ export type Id = id;
 
 export type contractRegistrations = { readonly log: Envio_logger; readonly addRelayDepository: (_1:Address_t) => void };
 
-export type entityHandlerContext<entity,indexedFieldOperations> = {
+export type entityLoaderContext<entity,indexedFieldOperations> = {
   readonly get: (_1:id) => Promise<(undefined | entity)>; 
   readonly getOrThrow: (_1:id, message:(undefined | string)) => Promise<entity>; 
   readonly getWhere: indexedFieldOperations; 
@@ -44,6 +54,10 @@ export type entityHandlerContext<entity,indexedFieldOperations> = {
   readonly set: (_1:entity) => void; 
   readonly deleteUnsafe: (_1:id) => void
 };
+
+export type loaderContext = $$loaderContext;
+
+export type entityHandlerContext<entity> = Internal_entityHandlerContext<entity>;
 
 export type handlerContext = $$handlerContext;
 
@@ -109,13 +123,25 @@ export type HandlerTypes_contractRegisterArgs<eventArgs> = Internal_genericContr
 
 export type HandlerTypes_contractRegister<eventArgs> = Internal_genericContractRegister<HandlerTypes_contractRegisterArgs<eventArgs>>;
 
+export type HandlerTypes_loaderArgs<eventArgs> = Internal_genericLoaderArgs<eventLog<eventArgs>,loaderContext>;
+
+export type HandlerTypes_loader<eventArgs,loaderReturn> = Internal_genericLoader<HandlerTypes_loaderArgs<eventArgs>,loaderReturn>;
+
+export type HandlerTypes_handlerArgs<eventArgs,loaderReturn> = Internal_genericHandlerArgs<eventLog<eventArgs>,handlerContext,loaderReturn>;
+
+export type HandlerTypes_handler<eventArgs,loaderReturn> = Internal_genericHandler<HandlerTypes_handlerArgs<eventArgs,loaderReturn>>;
+
+export type HandlerTypes_loaderHandler<eventArgs,loaderReturn,eventFilters> = Internal_genericHandlerWithLoader<HandlerTypes_loader<eventArgs,loaderReturn>,HandlerTypes_handler<eventArgs,loaderReturn>,eventFilters>;
+
 export type HandlerTypes_eventConfig<eventFilters> = Internal_eventOptions<eventFilters>;
 
 export type fnWithEventConfig<fn,eventConfig> = $$fnWithEventConfig<fn,eventConfig>;
 
+export type handlerWithOptions<eventArgs,loaderReturn,eventFilters> = fnWithEventConfig<HandlerTypes_handler<eventArgs,loaderReturn>,HandlerTypes_eventConfig<eventFilters>>;
+
 export type contractRegisterWithOptions<eventArgs,eventFilters> = fnWithEventConfig<HandlerTypes_contractRegister<eventArgs>,HandlerTypes_eventConfig<eventFilters>>;
 
-export type RelayDepository_chainId = 10;
+export type RelayDepository_chainId = 1 | 10;
 
 export type RelayDepository_RelayErc20Deposit_eventArgs = {
   readonly from: Address_t; 
@@ -143,9 +169,13 @@ export type RelayDepository_RelayErc20Deposit_event = {
   readonly block: RelayDepository_RelayErc20Deposit_block
 };
 
-export type RelayDepository_RelayErc20Deposit_handlerArgs = Internal_genericHandlerArgs<RelayDepository_RelayErc20Deposit_event,handlerContext,void>;
+export type RelayDepository_RelayErc20Deposit_loaderArgs = Internal_genericLoaderArgs<RelayDepository_RelayErc20Deposit_event,loaderContext>;
 
-export type RelayDepository_RelayErc20Deposit_handler = Internal_genericHandler<RelayDepository_RelayErc20Deposit_handlerArgs>;
+export type RelayDepository_RelayErc20Deposit_loader<loaderReturn> = Internal_genericLoader<RelayDepository_RelayErc20Deposit_loaderArgs,loaderReturn>;
+
+export type RelayDepository_RelayErc20Deposit_handlerArgs<loaderReturn> = Internal_genericHandlerArgs<RelayDepository_RelayErc20Deposit_event,handlerContext,loaderReturn>;
+
+export type RelayDepository_RelayErc20Deposit_handler<loaderReturn> = Internal_genericHandler<RelayDepository_RelayErc20Deposit_handlerArgs<loaderReturn>>;
 
 export type RelayDepository_RelayErc20Deposit_contractRegister = Internal_genericContractRegister<Internal_genericContractRegisterArgs<RelayDepository_RelayErc20Deposit_event,contractRegistrations>>;
 
@@ -178,9 +208,13 @@ export type RelayDepository_RelayNativeDeposit_event = {
   readonly block: RelayDepository_RelayNativeDeposit_block
 };
 
-export type RelayDepository_RelayNativeDeposit_handlerArgs = Internal_genericHandlerArgs<RelayDepository_RelayNativeDeposit_event,handlerContext,void>;
+export type RelayDepository_RelayNativeDeposit_loaderArgs = Internal_genericLoaderArgs<RelayDepository_RelayNativeDeposit_event,loaderContext>;
 
-export type RelayDepository_RelayNativeDeposit_handler = Internal_genericHandler<RelayDepository_RelayNativeDeposit_handlerArgs>;
+export type RelayDepository_RelayNativeDeposit_loader<loaderReturn> = Internal_genericLoader<RelayDepository_RelayNativeDeposit_loaderArgs,loaderReturn>;
+
+export type RelayDepository_RelayNativeDeposit_handlerArgs<loaderReturn> = Internal_genericHandlerArgs<RelayDepository_RelayNativeDeposit_event,handlerContext,loaderReturn>;
+
+export type RelayDepository_RelayNativeDeposit_handler<loaderReturn> = Internal_genericHandler<RelayDepository_RelayNativeDeposit_handlerArgs<loaderReturn>>;
 
 export type RelayDepository_RelayNativeDeposit_contractRegister = Internal_genericContractRegister<Internal_genericContractRegisterArgs<RelayDepository_RelayNativeDeposit_event,contractRegistrations>>;
 
@@ -190,4 +224,4 @@ export type RelayDepository_RelayNativeDeposit_eventFilters = Internal_noEventFi
 
 export type chainId = number;
 
-export type chain = 10;
+export type chain = 1 | 10;

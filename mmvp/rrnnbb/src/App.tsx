@@ -19,29 +19,13 @@ const bridgeNodes = nodes.filter(node => node.type === "Bridge").map(node => nod
 type PageView = "network" | "bridge" | "piexel";
 
 export default function App() {
-  const [page, setPage] = useState<PageView>("network");
+  const [page, setPage] = useState<PageView>("piexel");
   const [bridgeDetailsOpen, setBridgeDetailsOpen] = useState(false);
   const { blockNumber, transactions } = useBridgeData(3_000, DEFAULT_HISTORY_WINDOW_MS);
   const [destinationFilters, setDestinationFilters] = useState<Record<string, boolean>>({});
   const [protocolFilters, setProtocolFilters] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    setDestinationFilters(prev => {
-      const next = { ...prev };
-      let changed = false;
-      transactions.forEach(tx => {
-        const destination = chainIdToDestination[tx.chainID];
-        if (!destination) {
-          return;
-        }
-        if (!(destination in next)) {
-          next[destination] = true;
-          changed = true;
-        }
-      });
-      return changed ? next : prev;
-    });
-  }, [transactions]);
+  // Intentionally do not auto-populate destination filters from transactions for now.
 
   useEffect(() => {
     setProtocolFilters(prev => {
@@ -50,12 +34,6 @@ export default function App() {
       bridgeNodes.forEach(protocol => {
         if (!(protocol in next)) {
           next[protocol] = true;
-          changed = true;
-        }
-      });
-      transactions.forEach(tx => {
-        if (!(tx.from in next)) {
-          next[tx.from] = true;
           changed = true;
         }
       });
@@ -156,45 +134,6 @@ export default function App() {
         }}
       >
         <div style={{ display: "flex", gap: "0.75rem" }}>
-          <button
-            type="button"
-            onClick={() => {
-              setPage("network");
-              setBridgeDetailsOpen(false);
-            }}
-            style={{
-              padding: "0.5rem 1.25rem",
-              borderRadius: "9999px",
-              border: "1px solid",
-              borderColor: page === "network" ? "#38bdf8" : "rgba(148, 163, 184, 0.4)",
-              background: page === "network" ? "rgba(56, 189, 248, 0.12)" : "transparent",
-              color: "#f8fafc",
-              cursor: "pointer",
-              fontWeight: 600,
-              letterSpacing: "0.03em",
-              transition: "background 0.2s ease",
-            }}
-          >
-            Network Graph
-          </button>
-          <button
-            type="button"
-            onClick={() => setPage("bridge")}
-            style={{
-              padding: "0.5rem 1.25rem",
-              borderRadius: "9999px",
-              border: "1px solid",
-              borderColor: page === "bridge" ? "#f87171" : "rgba(148, 163, 184, 0.4)",
-              background: page === "bridge" ? "rgba(248, 113, 113, 0.12)" : "transparent",
-              color: "#f8fafc",
-              cursor: "pointer",
-              fontWeight: 600,
-              letterSpacing: "0.03em",
-              transition: "background 0.2s ease",
-            }}
-          >
-            Bridge Overview
-          </button>
           <button
             type="button"
             onClick={() => setPage("piexel")}
@@ -337,15 +276,6 @@ export default function App() {
           padding: "1.5rem",
         }}
       >
-        {page === "network" && <NetworkGraph links={links} hiddenNodes={hiddenNodes} />}
-        {page === "bridge" && (
-          <BridgeOverview
-            flows={filteredFlows}
-            links={links}
-            detailsOpen={bridgeDetailsOpen}
-            onCloseDetails={() => setBridgeDetailsOpen(false)}
-          />
-        )}
         {page === "piexel" && (
           <PiexelBridgeOverview
             flows={filteredFlows}

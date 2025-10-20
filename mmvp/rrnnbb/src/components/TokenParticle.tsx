@@ -24,7 +24,7 @@ export const TokenParticle: React.FC<TokenParticleProps> = ({
       animate={{ pathLength }}
       transition={{ duration, delay, repeat: Infinity, ease: "linear" }}
     >
-      <animateMotion dur={`${duration}s`} repeatCount="indefinite" path={path} rotate="auto" />
+      <animateMotion dur={`${duration}s`} repeatCount="indefinite" path={path} rotate="auto" begin={`${delay}s`} />
     </motion.circle>
   );
 };

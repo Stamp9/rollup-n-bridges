@@ -26,6 +26,7 @@ lib/*
 .merlin
 .bsb.lock
 /node_modules/
+./mmvp/rrnnbb/node_modules/
 benchmarks/
 artifacts
 generated
