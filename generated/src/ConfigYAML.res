@@ -89,6 +89,35 @@ let publicConfig = ChainMap.fromArrayUnsafe([
       }
     )
   },
+  {
+    let contracts = Js.Dict.fromArray([
+      (
+        "RelayDepository",
+        {
+          name: "RelayDepository",
+          abi: Types.RelayDepository.abi,
+          addresses: [
+            "0x4cD00E387622C35bDDB9b4c962C136462338BC31",
+          ],
+          events: [
+            Types.RelayDepository.RelayErc20Deposit.name,
+            Types.RelayDepository.RelayNativeDeposit.name,
+          ],
+        }
+      ),
+    ])
+    let chain = ChainMap.Chain.makeUnsafe(~chainId=8453)
+    (
+      chain,
+      {
+        confirmedBlockThreshold: 200,
+        syncSource: HyperSync({endpointUrl: "https://8453.hypersync.xyz"}),
+        startBlock: 0,
+        contracts,
+        lowercaseAddresses: false
+      }
+    )
+  },
 ])
 
 @genType

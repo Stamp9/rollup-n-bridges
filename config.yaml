@@ -8,13 +8,18 @@ contracts:
     - event: RelayErc20Deposit(address from, address token, uint256 amount, bytes32 id)
     - event: RelayNativeDeposit(address from, uint256 amount, bytes32 id)
 networks:
-- id: 1 # EThereum
+- id: 1 # Ethereum
   start_block: 0
   contracts:
   - name: RelayDepository
     address: 0x4cD00E387622C35bDDB9b4c962C136462338BC31
 
-- id: 10
+- id: 10 # Optimism
+  start_block: 0
+  contracts:
+  - name: RelayDepository
+    address: 0x4cD00E387622C35bDDB9b4c962C136462338BC31
+- id: 8453 # Base
   start_block: 0
   contracts:
   - name: RelayDepository

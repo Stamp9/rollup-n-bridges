@@ -317,7 +317,7 @@ module MakeRegister = (Event: Event) => {
 module RelayDepository = {
 let abi = Ethers.makeAbi((%raw(`[{"type":"event","name":"RelayErc20Deposit","inputs":[{"name":"from","type":"address","indexed":false},{"name":"token","type":"address","indexed":false},{"name":"amount","type":"uint256","indexed":false},{"name":"id","type":"bytes32","indexed":false}],"anonymous":false},{"type":"event","name":"RelayNativeDeposit","inputs":[{"name":"from","type":"address","indexed":false},{"name":"amount","type":"uint256","indexed":false},{"name":"id","type":"bytes32","indexed":false}],"anonymous":false}]`): Js.Json.t))
 let eventSignatures = ["RelayErc20Deposit(address from, address token, uint256 amount, bytes32 id)", "RelayNativeDeposit(address from, uint256 amount, bytes32 id)"]
-@genType type chainId = [#1 | #10]
+@genType type chainId = [#1 | #10 | #8453]
 let contractName = "RelayDepository"
 
 module RelayErc20Deposit = {
@@ -475,4 +475,4 @@ let register = (): Internal.evmEventConfig => {
 type chainId = int
 
 @genType
-type chain = [#1 | #10]
+type chain = [#1 | #10 | #8453]
