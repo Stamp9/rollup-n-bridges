@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import islandSrc from "../assets/island.png";
+import islandSrc from "../assets/ethereum.png";
 import temBgSrc from "../assets/tem_bg.png";
 import catWaitingSrc from "../assets/cat_wating.png";
-import catRunningSrc from "../assets/cat_running.gif";
+import OPcatRunningSrc from "../assets/cattie1.gif";
+import BasecatRunningSrc from "../assets/cattie2.gif";
+import relayNodeSrc from "../assets/relay.png";
 
 import { NodeCircle } from "./NodeCircle";
 import { TokenParticle } from "./TokenParticle";
@@ -21,8 +23,8 @@ interface PiexelBridgeOverviewProps {
 const islandNode = { id: "Island", type: "L1" as const, x: 220, y: 320 };
 
 const bridgeProtocols = [
-  { name: "Relay", hue: "#38bdf8", node: { id: "Relay", type: "Bridge" as const, x: 540, y: 220 } },
-  { name: "Across", hue: "#a855f7", node: { id: "Across", type: "Bridge" as const, x: 540, y: 360 } },
+  { name: "Relay", hue: "#38bdf8", node: { id: "Relay", type: "Bridge" as const, x: 540, y: 320 } },
+  { name: "Across", hue: "#a855f7", node: { id: "Across", type: "Bridge" as const, x: 540, y: 120 } },
   { name: "Mayan", hue: "#f97316", node: { id: "Mayan", type: "Bridge" as const, x: 540, y: 500 } },
 ] as const;
 
@@ -30,10 +32,28 @@ const svgWidth = 900;
 const svgHeight = 620;
 
 const SIDE_PANEL_OPEN_WIDTH = 260;
+const FLOW_END_OFFSET = 30;
 
 const fallbackDestinationColor = "#64748b";
 
 const baseDestinationColorMap = new Map(layer2Destinations.map(dest => [dest.name, dest.color]));
+
+const blockExplorerByChain: Record<number, { buildUrl: (blockNumber: number) => string; label: string }> = {
+  1: {
+    buildUrl: blockNumber => `https://etherscan.io/block/${blockNumber}`,
+    label: "View on Etherscan",
+  },
+  10: {
+    buildUrl: blockNumber => `https://explorer.optimism.io/block/${blockNumber}`,
+    label: "View on Optimism Explorer",
+  },
+  8453: {
+    buildUrl: blockNumber => `https://base.blockscout.com/block/${blockNumber}`,
+    label: "View on Blockscout",
+  },
+};
+
+const defaultBlockExplorer = blockExplorerByChain[1];
 
 const hexToRgba = (hex: string, alpha: number) => {
   if (!hex || typeof hex !== "string" || !hex.startsWith("#")) {
@@ -67,7 +87,11 @@ type BridgeSummary = {
 };
 
 const sortTransactions = (txs: BridgeTx[]) =>
-  txs.sort((a, b) => b.blockNumber - a.blockNumber || (b.timestamp ?? 0) - (a.timestamp ?? 0));
+  txs.sort((a, b) => {
+    const blockA = a.destinationBlockNumber ?? a.blockNumber;
+    const blockB = b.destinationBlockNumber ?? b.blockNumber;
+    return blockB - blockA || (b.timestamp ?? 0) - (a.timestamp ?? 0);
+  });
 
 export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   flows,
@@ -75,7 +99,8 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   detailsOpen,
   onCloseDetails,
 }) => {
-  const [hoveredKey, setHoveredKey] = useState<{ bridgeId: string; destination: string } | null>(null);
+  const [selectedProtocolId, setSelectedProtocolId] = useState<string>("All");
+  const [selectedDestination, setSelectedDestination] = useState<string>("All");
 
   const destinationColorMap = useMemo(() => {
     const map = new Map(baseDestinationColorMap);
@@ -115,7 +140,6 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
           const combinedTxCount = existingTxCount + txCount;
           const combinedLatencySum = existing.avgLatencyMs * existingTxCount + avgLatencyMs * txCount;
           const updatedTransactions = sortTransactions([...existing.transactions, ...transactions]);
-          console.log(link.target);
           flowsByDestination.set(link.target, {
             bridgeId: existing.bridgeId,
             name: existing.name,
@@ -149,25 +173,108 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
 
   const flattenedFlows = useMemo(() => bridgeSummaries.flatMap(summary => summary.flows), [bridgeSummaries]);
 
-  const activeFlow = useMemo(() => {
-    if (!hoveredKey) {
-      return flattenedFlows[0] ?? null;
+  useEffect(() => {
+    if (
+      selectedProtocolId !== "All" &&
+      !flattenedFlows.some(flow => flow.bridgeId === selectedProtocolId)
+    ) {
+      setSelectedProtocolId("All");
     }
-    return (
-      flattenedFlows.find(flow => flow.bridgeId === hoveredKey.bridgeId && flow.name === hoveredKey.destination) ??
-      flattenedFlows[0] ??
-      null
+  }, [flattenedFlows, selectedProtocolId]);
+
+  useEffect(() => {
+    if (selectedDestination !== "All" && !flattenedFlows.some(flow => flow.name === selectedDestination)) {
+      setSelectedDestination("All");
+    }
+  }, [flattenedFlows, selectedDestination]);
+
+  const allDestinations = useMemo(() => {
+    const set = new Set<string>();
+    flattenedFlows.forEach(flow => set.add(flow.name));
+    return ["All", ...Array.from(set)];
+  }, [flattenedFlows]);
+
+  const protocolOptions = useMemo(() => ["All", ...bridgeProtocols.map(protocol => protocol.name)], []);
+
+  const selectedFlows = useMemo(() => {
+    return flattenedFlows.filter(flow => {
+      const matchesProtocol = selectedProtocolId === "All" || flow.bridgeId === selectedProtocolId;
+      const matchesDestination = selectedDestination === "All" || flow.name === selectedDestination;
+      return matchesProtocol && matchesDestination;
+    });
+  }, [flattenedFlows, selectedProtocolId, selectedDestination]);
+
+  const activeFlow = useMemo(() => {
+    if (selectedFlows.length === 0) {
+      return null;
+    }
+    if (selectedFlows.length === 1) {
+      return selectedFlows[0];
+    }
+
+    const totalVolume = selectedFlows.reduce((sum, flow) => sum + flow.volumeUsd, 0);
+    const totalTxCount = selectedFlows.reduce((sum, flow) => sum + (flow.txCount ?? 0), 0);
+    const totalTxPerMinute = selectedFlows.reduce((sum, flow) => sum + flow.txPerMinute, 0);
+    const latencyWeightedSum = selectedFlows.reduce(
+      (sum, flow) => sum + (flow.avgLatencyMs ?? 0) * (flow.txCount ?? 0),
+      0,
     );
-  }, [hoveredKey, flattenedFlows]);
+    const lastUpdated = selectedFlows.reduce((max, flow) => Math.max(max, flow.lastUpdated ?? 0), 0);
+    const transactions = sortTransactions(selectedFlows.flatMap(flow => flow.transactions ?? []));
 
-  const activeBridge = bridgeSummaries.find(summary => summary.protocol.name === activeFlow?.bridgeId) ?? null;
-  const activeBridgeId = activeBridge?.protocol.name ?? null;
+    const name = selectedDestination === "All"
+      ? selectedProtocolId === "All"
+        ? "All Destinations"
+        : `${selectedProtocolId} · All Destinations`
+      : selectedDestination;
 
-  const protocolChipData = bridgeProtocols.map(protocol => ({
-    name: protocol.name,
-    hue: protocol.hue,
-    isActive: protocol.name === activeBridgeId,
-  }));
+    const color = selectedDestination !== "All"
+      ? destinationColorMap.get(selectedDestination) ?? fallbackDestinationColor
+      : fallbackDestinationColor;
+
+    const avgLatencyMs = totalTxCount > 0 ? latencyWeightedSum / totalTxCount : selectedFlows[0]?.avgLatencyMs ?? 0;
+
+    const aggregatedFlow: BridgeDestinationFlow = {
+      bridgeId: selectedProtocolId === "All" ? "All" : selectedProtocolId,
+      name,
+      color,
+      volumeUsd: totalVolume,
+      txPerMinute: totalTxPerMinute,
+      avgLatencyMs,
+      txCount: totalTxCount,
+      lastUpdated,
+      transactions,
+    };
+
+    return aggregatedFlow;
+  }, [selectedFlows, selectedDestination, selectedProtocolId, destinationColorMap]);
+
+  const protocolChipData = protocolOptions.map(option => {
+    if (option === "All") {
+      return { label: "All Bridges", hue: "#38bdf8", value: "All", isActive: selectedProtocolId === "All" };
+    }
+    const protocol = bridgeProtocols.find(p => p.name === option)!;
+    return {
+      label: protocol.name,
+      hue: protocol.hue,
+      value: protocol.name,
+      isActive: selectedProtocolId === protocol.name,
+    };
+  });
+
+  const destinationChipData = allDestinations.map(option => {
+    if (option === "All") {
+      return { label: "All L2", color: "#38bdf8", value: "All", isActive: selectedDestination === "All" };
+    }
+    return {
+      label: option,
+      color: destinationColorMap.get(option) ?? fallbackDestinationColor,
+      value: option,
+      isActive: selectedDestination === option,
+    };
+  });
+
+  const activeBridgeLabel = selectedProtocolId === "All" ? "All Bridges" : selectedProtocolId;
 
   const activeTransactions = activeFlow?.transactions ?? [];
 
@@ -285,25 +392,46 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
 
             <image
               href={islandSrc}
-              x={islandNode.x - 60}
-              y={islandNode.y - 60}
-              width={120}
-              height={120}
+              x={islandNode.x - 110}
+              y={islandNode.y - 110}
+              width={220}
+              height={220}
               preserveAspectRatio="xMidYMid slice"
               style={{ filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))" }}
             />
 
+            {bridgeProtocols.map(protocol => (
+              <NodeCircle
+                key={`piexel-node-${protocol.name}`}
+                x={protocol.node.x}
+                y={protocol.node.y}
+                label={protocol.node.id}
+                type={protocol.node.type}
+                imageSrc={protocol.node.id === "Relay" ? relayNodeSrc : undefined}
+                imageRadius={protocol.node.id === "Relay" ? 72 : undefined}
+              />
+            ))}
+
             {bridgeSummaries.map((summary, bridgeIndex) => {
               const { protocol, flows: bridgeFlows } = summary;
               const { node, hue } = protocol;
-              const controlX = (islandNode.x + node.x) / 2;
-              const controlY = ((islandNode.y + node.y) / 2) - 140;
-              const path = `M${islandNode.x},${islandNode.y} Q${controlX},${controlY} ${node.x},${node.y}`;
+              const dx = node.x - islandNode.x;
+              const dy = node.y - islandNode.y;
+              const distance = Math.hypot(dx, dy) || 1;
+              const offset = Math.min(FLOW_END_OFFSET, Math.max(8, distance * 0.4));
+              const endX = node.x - (dx / distance) * offset;
+              const endY = node.y - (dy / distance) * offset;
+              const path = `M${islandNode.x},${islandNode.y} L${endX},${endY}`;
+              const matchesSelection = (flow: BridgeDestinationFlow) =>
+                (selectedProtocolId === "All" || flow.bridgeId === selectedProtocolId) &&
+                (selectedDestination === "All" || flow.name === selectedDestination);
+
+              const visibleFlows = bridgeFlows.filter(matchesSelection);
               const legendRowHeight = 20;
-              const legendHeight = bridgeFlows.length * legendRowHeight + 18;
+              const legendHeight = visibleFlows.length * legendRowHeight + 18;
               const legendX = node.x + 128;
               const legendY = Math.max(36, node.y - legendHeight / 2);
-              const tooltipLines = bridgeFlows.map(
+              const tooltipLines = visibleFlows.map(
                 flow => `${flow.name}: $${(flow.volumeUsd / 1_000_000).toFixed(1)}M • ${flow.txPerMinute} tx/min`,
               );
               const containerWidth = 240;
@@ -312,16 +440,15 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
               const containerY = legendY - 10;
               const containerFill = hexToRgba(hue, 0.14);
               const containerStroke = hexToRgba(hue, 0.3);
+              if (visibleFlows.length === 0) {
+                return null;
+              }
+
               return (
                 <g key={`piexel-${protocol.name}`}>
                   <circle cx={node.x} cy={node.y} r={70} fill={`url(#piexelBridgeGlow-${protocol.name})`} opacity={0.45} />
-                  <path d={path} stroke={hue} strokeWidth={4} fill="none" opacity={0.35} />
+                  <path d={path} stroke="transparent" strokeWidth={4} fill="none" opacity={0} />
                   <title>{[`${protocol.name} bridge`].concat(tooltipLines).join("\n")}</title>
-                  {bridgeFlows.length === 0 ? (
-                    <text x={legendX} y={node.y} fill="#475569" fontSize={12}>
-                      No active flows
-                    </text>
-                  ) : (
                     <>
                       <rect
                         x={containerX}
@@ -333,28 +460,47 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                         stroke={containerStroke}
                         strokeWidth={1.2}
                       />
-                      {bridgeFlows.map((flow, flowIndex) => {
+                      {visibleFlows.map((flow, flowIndex) => {
                         const delay = bridgeIndex * 0.6 + flowIndex * 0.8;
-                        const size = Math.min(22, 4 + flow.volumeUsd / 2_000_000);
+                        const size = Math.min(12, 2 + flow.volumeUsd / 2_000_000);
                         const labelX = legendX;
                         const labelY = legendY + 22 + flowIndex * legendRowHeight;
                         const indicatorSize = 16;
                         const indicatorX = labelX - indicatorSize - 8;
                         const indicatorY = labelY - indicatorSize / 2;
                         const queueKey = getFlowKey(flow.bridgeId, flow.name);
-                        const activeParticles = (queuesRef.current.get(queueKey)?.active ?? []);
-                        console.log(activeParticles);
+                        const activeParticles = queuesRef.current.get(queueKey)?.active ?? [];
 
                         return (
-
                           <g
                             key={`piexel-${protocol.name}-${flow.name}`}
-                            onMouseEnter={() => setHoveredKey({ bridgeId: flow.bridgeId, destination: flow.name })}
-                            onMouseLeave={() => setHoveredKey(null)}
+                            onClick={() => {
+                              setSelectedProtocolId(flow.bridgeId);
+                              setSelectedDestination(flow.name);
+                            }}
+                            style={{ cursor: "pointer" }}
                           >
                             {flow.name === "Base" ? (
                               <image
-                                href={catRunningSrc}
+                                href={BasecatRunningSrc}
+                                x={0}
+                                y={0}
+                                width={size * 4.8}
+                                height={size * 3.2}
+                                preserveAspectRatio="xMidYMid meet"
+                                style={{ transform: `translate(${-size * 1.2}px, ${-size * 1.1}px)` }}
+                              >
+                                <animateMotion
+                                  dur={`${6}s`}
+                                  repeatCount="indefinite"
+                                  path={path}
+                                  rotate="auto"
+                                  begin={`${delay}s`}
+                                />
+                              </image>
+                            ) : flow.name === "Optimism" ? (
+                              <image
+                                href={OPcatRunningSrc}
                                 x={0}
                                 y={0}
                                 width={size * 4.8}
@@ -374,17 +520,18 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                               <TokenParticle path={path} delay={delay} color={flow.color} duration={6} size={size} />
                             )}
                             {activeParticles.map((p, i) => {
-                                const txDelay = delay + 0.15 * i;
-                                return (
-                              <TokenParticle
-                                key={`txp-${p.id}-${p.start}`}
-                                path={path}
-                                delay={txDelay}
-                                color={p.color}
-                                duration={6}
-                                size={p.size}
-                              />
-                            )} )}
+                              const txDelay = delay + 0.15 * i;
+                              return (
+                                <TokenParticle
+                                  key={`txp-${p.id}-${p.start}`}
+                                  path={path}
+                                  delay={txDelay}
+                                  color={p.color}
+                                  duration={6}
+                                  size={p.size}
+                                />
+                              );
+                            })}
                         {flow.name === "Base" ? (
                           <image
                             href={catWaitingSrc}
@@ -403,45 +550,35 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             height={indicatorSize}
                             rx={5}
                             fill={flow.color}
-                            opacity={0.95}
+                            opacity={matchesSelection ? 1 : 0.6}
                           />
                         )}
-                            <text
-                              x={labelX}
-                              y={labelY}
-                              fill="#e5e7eb"
-                              fontSize={12}
-                              fontWeight={600}
-                              dominantBaseline="middle"
-                            >
-                              {flow.name}
-                              <tspan
-                                dx={8}
-                                fill="#cbd5f5"
-                                fontSize={10}
-                                fontWeight={400}
-                              >
-                                {`${(flow.volumeUsd / 1_000_000).toFixed(1)}M • ${flow.txPerMinute} tx/min`}
-                              </tspan>
-                            </text>
+                        <text
+                          x={labelX}
+                          y={labelY}
+                          fill={matchesSelection ? "#f8fafc" : "#e5e7eb"}
+                          fontSize={12}
+                          fontWeight={matchesSelection ? 700 : 600}
+                          dominantBaseline="middle"
+                        >
+                          {flow.name}
+                          <tspan
+                            dx={8}
+                            fill={matchesSelection ? "#e0e7ff" : "#cbd5f5"}
+                            fontSize={10}
+                            fontWeight={400}
+                          >
+                            {`${(flow.volumeUsd / 1_000_000).toFixed(1)}M • ${flow.txPerMinute} tx/min`}
+                          </tspan>
+                        </text>
                           </g>
                         );
                       })}
                     </>
-                  )}
                 </g>
               );
             })}
 
-            {bridgeProtocols.map(protocol => (
-              <NodeCircle
-                key={`piexel-node-${protocol.name}`}
-                x={protocol.node.x}
-                y={protocol.node.y}
-                label={protocol.node.id}
-                type={protocol.node.type}
-              />
-            ))}
           </svg>
         </div>
       </div>
@@ -479,7 +616,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                 color: "#94a3b8",
               }}
             >
-              {activeFlow?.bridgeId ?? "Bridge"}
+              {activeBridgeLabel}
             </span>
             <button
               type="button"
@@ -511,25 +648,65 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                 />
                 <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600 }}>{activeFlow.name}</h3>
               </div>
-              <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
-                {protocolChipData.map(protocol => (
-                  <span
-                    key={protocol.name}
-                    style={{
-                      fontSize: "0.72rem",
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                      padding: "0.25rem 0.6rem",
-                      borderRadius: "9999px",
-                      border: `1px solid ${protocol.isActive ? protocol.hue : `${protocol.hue}33`}`,
-                      color: protocol.hue,
-                      background: protocol.isActive ? `${protocol.hue}26` : `${protocol.hue}1a`,
-                      opacity: protocol.isActive ? 1 : 0.7,
-                    }}
-                  >
-                    {protocol.name}
-                  </span>
-                ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+                <div>
+                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.35rem" }}>
+                    Protocol
+                  </div>
+                  <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+                    {protocolChipData.map(protocol => (
+                      <button
+                        key={protocol.value}
+                        type="button"
+                        onClick={() => setSelectedProtocolId(protocol.value)}
+                        style={{
+                          fontSize: "0.72rem",
+                          letterSpacing: "0.05em",
+                          textTransform: "uppercase",
+                          padding: "0.25rem 0.6rem",
+                          borderRadius: "9999px",
+                          border: `1px solid ${protocol.isActive ? protocol.hue : `${protocol.hue}33`}`,
+                          color: protocol.hue,
+                          background: protocol.isActive ? `${protocol.hue}26` : `${protocol.hue}1a`,
+                          opacity: protocol.isActive ? 1 : 0.7,
+                          cursor: "pointer",
+                          transition: "opacity 120ms ease",
+                        }}
+                      >
+                        {protocol.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: "0.7rem", color: "#94a3b8", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.35rem" }}>
+                    Destination
+                  </div>
+                  <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+                    {destinationChipData.map(destination => (
+                      <button
+                        key={destination.value}
+                        type="button"
+                        onClick={() => setSelectedDestination(destination.value)}
+                        style={{
+                          fontSize: "0.72rem",
+                          letterSpacing: "0.05em",
+                          textTransform: "uppercase",
+                          padding: "0.25rem 0.6rem",
+                          borderRadius: "9999px",
+                          border: `1px solid ${destination.isActive ? destination.color : `${destination.color}33`}`,
+                          color: destination.color,
+                          background: destination.isActive ? `${destination.color}26` : `${destination.color}1a`,
+                          opacity: destination.isActive ? 1 : 0.7,
+                          cursor: "pointer",
+                          transition: "opacity 120ms ease",
+                        }}
+                      >
+                        {destination.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div style={{ fontSize: "0.85rem", color: "#cbd5f5" }}>Volume (1m window)</div>
               <div style={{ fontSize: "1.4rem", fontWeight: 600 }}>{formatMillions(activeFlow.volumeUsd)} USD</div>
@@ -541,8 +718,11 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
               <div style={{ fontSize: "0.78rem", color: "#cbd5f5", textTransform: "uppercase", letterSpacing: "0.08em" }}>Recent tx</div>
               <div style={{ maxHeight: "200px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                 {activeTransactions.length > 0 ? (
-                  activeTransactions.slice(0, 8).map(tx => (
-                    <div
+                  activeTransactions.slice(0, 8).map(tx => {
+                    const explorer = blockExplorerByChain[tx.chainID] ?? defaultBlockExplorer;
+                    const blockNumber = tx.destinationBlockNumber ?? tx.blockNumber;
+                    return (
+                      <div
                       key={tx.id}
                       style={{
                         border: "1px solid rgba(59, 130, 246, 0.2)",
@@ -555,7 +735,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", color: "#f8fafc", fontSize: "0.85rem" }}>
-                        <span>Block {tx.blockNumber.toLocaleString()}</span>
+                        <span>Block {blockNumber.toLocaleString()}</span>
                         <span style={{ color: tokenColors[tx.token] ?? "#f59e0b" }}>{tx.token}</span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "#94a3b8" }}>
@@ -563,15 +743,16 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                         <span>{tx.from}</span>
                       </div>
                       <a
-                        href={`https://etherscan.io/tx/${tx.id}`}
+                        href={explorer.buildUrl(blockNumber)}
                         target="_blank"
                         rel="noreferrer"
                         style={{ fontSize: "0.75rem", color: "#38bdf8", textDecoration: "none" }}
                       >
-                        View on Etherscan
+                        {explorer.label}
                       </a>
-                    </div>
-                  ))
+                      </div>
+                    );
+                  })
                 ) : (
                   <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>No recent transactions</div>
                 )}

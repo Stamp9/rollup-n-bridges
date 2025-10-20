@@ -2,6 +2,7 @@ export interface BridgeTx {
   id: string;
   chainID: number;
   blockNumber: number;
+  destinationBlockNumber?: number;
   amount: number;
   token: string;
   from: string;
@@ -70,6 +71,7 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
         order_by: { block_number: asc }
       ) {
         id
+        chain_id
         block_number
         from
         amount
@@ -80,6 +82,7 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
         order_by: { block_number: asc }
       ) {
         id
+        chain_id
         block_number
         from
         amount
@@ -93,33 +96,58 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
 
   const data = await fetchGraphQL(query, { fromBlock: String(fromBlock) });
 
-  type NativeRow = { id: string; block_number: number; from: string; amount: string | number };
-  type Erc20Row = { id: string; block_number: number; from: string; amount: string | number; token?: string | null };
+  type NativeRow = {
+    id: string;
+    chain_id?: number | null;
+    block_number: number;
+    from: string;
+    amount: string | number;
+  };
+  type Erc20Row = {
+    id: string;
+    chain_id?: number | null;
+    block_number: number;
+    from: string;
+    amount: string | number;
+    token?: string | null;
+  };
 
   const now = Date.now();
   const nativeRows: NativeRow[] = data?.native ?? [];
   const erc20Rows: Erc20Row[] = data?.erc20 ?? [];
 
-  const nativeTxs: BridgeTx[] = nativeRows.map((r) => ({
-    id: r.id,
-    chainID: 10, // Optimism as destination per plan focus
-    blockNumber: Number(r.block_number),
-    amount: typeof r.amount === 'string' ? Number(r.amount) : (r.amount ?? 0),
-    token: 'ETH',
-    from: 'Relay',
-    timestamp: now,
-  }));
+  const nativeTxs: BridgeTx[] = nativeRows.map((r) => {
+    const chainID = Number(r.chain_id ?? 0) || 1;
+    const destinationChainID = chainID === 1 ? 10 : chainID;
+    const destinationBlockNumber = Number(r.block_number);
+    return {
+      id: r.id,
+      chainID: destinationChainID,
+      blockNumber: Number(r.block_number),
+      destinationBlockNumber,
+      amount: typeof r.amount === 'string' ? Number(r.amount) : (r.amount ?? 0),
+      token: 'ETH',
+      from: 'Relay',
+      timestamp: now,
+    };
+  });
 
-  const erc20Txs: BridgeTx[] = erc20Rows.map((r) => ({
-    id: r.id,
-    chainID: 10, // Optimism
-    blockNumber: Number(r.block_number),
-    amount: typeof r.amount === 'string' ? Number(r.amount) : (r.amount ?? 0),
-    // If the indexer returns a symbol, use it; otherwise default to USDC for visualization
-    token: (r.token && r.token.length <= 10) ? (r.token as string) : 'USDC',
-    from: 'Relay',
-    timestamp: now,
-  }));
+  const erc20Txs: BridgeTx[] = erc20Rows.map((r) => {
+    const chainID = Number(r.chain_id ?? 0) || 1;
+    const destinationChainID = chainID === 1 ? 10 : chainID;
+    const destinationBlockNumber = Number(r.block_number);
+    return {
+      id: r.id,
+      chainID: destinationChainID,
+      blockNumber: Number(r.block_number),
+      destinationBlockNumber,
+      amount: typeof r.amount === 'string' ? Number(r.amount) : (r.amount ?? 0),
+      // If the indexer returns a symbol, use it; otherwise default to USDC for visualization
+      token: (r.token && r.token.length <= 10) ? (r.token as string) : 'USDC',
+      from: 'Relay',
+      timestamp: now,
+    };
+  });
 
   const txs = [...nativeTxs, ...erc20Txs].sort((a, b) => a.blockNumber - b.blockNumber);
   const latestBlock = txs.length > 0 ? txs[txs.length - 1].blockNumber : fromBlock;

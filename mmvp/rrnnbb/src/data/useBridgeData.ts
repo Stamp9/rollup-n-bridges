@@ -58,19 +58,20 @@ export const buildAggregatedData = (
       return;
     }
     const source = tx.from || "Ethereum";
+    const destinationBlockNumber = tx.destinationBlockNumber ?? tx.blockNumber;
     const key = `${source}-${target}`;
     if (!linkMap.has(key)) {
       linkMap.set(key, {
         source,
         target,
-        blockNumber: tx.blockNumber,
+        blockNumber: destinationBlockNumber,
         lastUpdated: tx.timestamp,
         tokens: new Map(),
         txs: [],
       });
     }
     const entry = linkMap.get(key)!;
-    entry.blockNumber = Math.max(entry.blockNumber, tx.blockNumber);
+    entry.blockNumber = Math.max(entry.blockNumber, destinationBlockNumber);
     entry.lastUpdated = Math.max(entry.lastUpdated, tx.timestamp);
     entry.txs.push(tx);
 
