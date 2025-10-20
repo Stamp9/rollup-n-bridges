@@ -105,6 +105,8 @@ export default function App() {
     return layer2Flows.filter(flow => activeDestinations.has(flow.name));
   }, [layer2Flows, activeDestinations, destinationFilters]);
 
+  console.log(filteredFlows);
+
   const bridgeTotalVolume = filteredFlows.reduce((sum, flow) => sum + flow.volumeUsd, 0);
 
   const hiddenNodes = useMemo(() => {

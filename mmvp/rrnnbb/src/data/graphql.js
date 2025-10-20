@@ -18,7 +18,6 @@ async function fetchGraphQL(query, variables = {}) {
     throw new Error(`GraphQL HTTP ${res.status}: ${text}`);
   }
   const json = await res.json();
-  console.log(json);
   if (json.errors) {
     throw new Error(`GraphQL errors: ${JSON.stringify(json.errors)}`);
   }

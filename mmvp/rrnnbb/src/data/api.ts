@@ -53,7 +53,6 @@ export const fetchLatestBlockNumber = async (): Promise<number> => {
   `;
   try {
     const data = await fetchGraphQL(query, {});
-    console.log(data);
     return data?.chain_metadata?.[0]?.block_height ?? 0;
   } catch {
     // Fallback for environments without the indexer running
@@ -62,7 +61,6 @@ export const fetchLatestBlockNumber = async (): Promise<number> => {
 };
 
 export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiResponse> => {
-  console.log("fetching with ", fromBlock );
   // Query both native and ERC20 deposits since a given block (exclusive)
   const query = `
     query DepositsSince($fromBlock: Int!) {

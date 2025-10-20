@@ -144,7 +144,7 @@ export const useBridgeData = (
       // Ignore sessionStorage errors; use pre-fetched initialLatestBlockNumber
     }
     return {
-      blockNumber: startBlock,
+      blockNumber: 140_000_000,
       links: [],
       layer2Flows: [],
       transactions: [],
@@ -156,6 +156,7 @@ export const useBridgeData = (
     let timerId: number | undefined;
 
     const fetchAndUpdate = async () => {
+      console.log("fetch from block ", state.blockNumber)
       const response = await fetchBridgeTxsSince(state.blockNumber);
       if (cancelled) {
         return;
@@ -165,7 +166,6 @@ export const useBridgeData = (
         const cutoff = Date.now() - historyWindowMs;
         const filteredTxs = mergedTxs.filter(tx => tx.timestamp >= cutoff);
         const { links, layer2Flows } = buildAggregatedData(filteredTxs, historyWindowMs);
-        console.log(response.blockNumber);
         return {
           blockNumber: response.blockNumber,
           links,
