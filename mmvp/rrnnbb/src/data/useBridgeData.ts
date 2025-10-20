@@ -155,6 +155,7 @@ export const useBridgeData = (
     let cancelled = false;
     let timerId: number | undefined;
 
+    console.log(nextBlockToFetch);
     const fetchAndUpdate = async () => {
       console.log("fetch from block ", state.blockNumber)
       const response = await fetchBridgeTxsSince(state.blockNumber);

@@ -141,7 +141,11 @@ export type handlerWithOptions<eventArgs,loaderReturn,eventFilters> = fnWithEven
 
 export type contractRegisterWithOptions<eventArgs,eventFilters> = fnWithEventConfig<HandlerTypes_contractRegister<eventArgs>,HandlerTypes_eventConfig<eventFilters>>;
 
+<<<<<<< HEAD
 export type RelayDepository_chainId = 1 | 10 | 8453;
+=======
+export type RelayDepository_chainId = 1 | 10;
+>>>>>>> d465ecf (merge relay stuff)
 
 export type RelayDepository_RelayErc20Deposit_eventArgs = {
   readonly from: Address_t; 
@@ -224,4 +228,8 @@ export type RelayDepository_RelayNativeDeposit_eventFilters = Internal_noEventFi
 
 export type chainId = number;
 
+<<<<<<< HEAD
 export type chain = 1 | 10 | 8453;
+=======
+export type chain = 1 | 10;
+>>>>>>> d465ecf (merge relay stuff)

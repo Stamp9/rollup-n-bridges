@@ -343,9 +343,13 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                         const indicatorY = labelY - indicatorSize / 2;
                         const queueKey = getFlowKey(flow.bridgeId, flow.name);
                         const activeParticles = (queuesRef.current.get(queueKey)?.active ?? []);
+<<<<<<< HEAD
                         console.log(activeParticles);
+=======
+>>>>>>> d465ecf (merge relay stuff)
 
                         return (
+
                           <g
                             key={`piexel-${protocol.name}-${flow.name}`}
                             onMouseEnter={() => setHoveredKey({ bridgeId: flow.bridgeId, destination: flow.name })}
@@ -372,8 +376,14 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             ) : (
                               <TokenParticle path={path} delay={delay} color={flow.color} duration={6} size={size} />
                             )}
+<<<<<<< HEAD
                             {activeParticles.map((p, i) => {
                                 const txDelay = delay + 0.15 * i;
+=======
+                            {/* Active per-transaction particles from queue (expire after 6s) */}
+                            {activeParticles.map((p, i) => {
+const txDelay = delay + 0.15 * i;
+>>>>>>> d465ecf (merge relay stuff)
                                 return (
                               <TokenParticle
                                 key={`txp-${p.id}-${p.start}`}
