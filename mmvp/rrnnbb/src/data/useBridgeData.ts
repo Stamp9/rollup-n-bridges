@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { BridgeTx } from "./api";
 import { fetchBridgeTxsSince, mapTxToVolume } from "./api";
@@ -151,14 +151,18 @@ export const useBridgeData = (
     };
   });
 
+  const blockRef = useRef(state.blockNumber);
+
+  useEffect(() => {
+    blockRef.current = state.blockNumber;
+  }, [state.blockNumber]);
+
   useEffect(() => {
     let cancelled = false;
     let timerId: number | undefined;
 
-    console.log(nextBlockToFetch);
     const fetchAndUpdate = async () => {
-      console.log("fetch from block ", state.blockNumber)
-      const response = await fetchBridgeTxsSince(state.blockNumber);
+      const response = await fetchBridgeTxsSince(blockRef.current);
       if (cancelled) {
         return;
       }
@@ -174,6 +178,7 @@ export const useBridgeData = (
           transactions: filteredTxs,
         };
       });
+      blockRef.current = response.blockNumber;
       try {
         sessionStorage.setItem(SESSION_KEY, String(response.blockNumber));
       } catch {
@@ -188,6 +193,7 @@ export const useBridgeData = (
         return;
       }
       setState(prev => ({ ...prev, blockNumber: startBlock }));
+      blockRef.current = startBlock;
       await fetchAndUpdate();
       if (!cancelled && intervalMs > 0) {
         timerId = window.setInterval(fetchAndUpdate, intervalMs);
