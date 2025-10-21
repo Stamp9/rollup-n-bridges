@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { PiexelBridgeOverview } from "./components/PiexelBridgeOverview";
+import { useBridgeSummaries } from "./components/hooks/useBridgeSummaries";
 import type { BridgeTx } from "./data/api";
 import { nodes } from "./data/model";
 import {
@@ -19,6 +20,8 @@ type PageView = "network" | "bridge" | "piexel";
 export default function App() {
   const [page, setPage] = useState<PageView>("piexel");
   const [bridgeDetailsOpen, setBridgeDetailsOpen] = useState(false);
+  const [selectedProtocolId, setSelectedProtocolId] = useState<string>("All");
+  const [selectedDestination, setSelectedDestination] = useState<string>("All");
   const { blockNumber, transactions } = useBridgeData(3_000, DEFAULT_HISTORY_WINDOW_MS);
   const [destinationFilters, setDestinationFilters] = useState<Record<string, boolean>>({});
   const [protocolFilters, setProtocolFilters] = useState<Record<string, boolean>>({});
@@ -55,16 +58,6 @@ export default function App() {
     return new Set(entries.filter(([, enabled]) => enabled).map(([name]) => name));
   }, [destinationFilters]);
 
-  const hiddenDestinations = useMemo(() => {
-    const entries = Object.entries(destinationFilters);
-    return new Set(entries.filter(([, enabled]) => !enabled).map(([name]) => name));
-  }, [destinationFilters]);
-
-  const hiddenProtocols = useMemo(() => {
-    const entries = Object.entries(protocolFilters);
-    return new Set(entries.filter(([, enabled]) => !enabled).map(([name]) => name));
-  }, [protocolFilters]);
-
   const availableDestinations = useMemo(() => Object.keys(destinationFilters).sort(), [destinationFilters]);
   const availableProtocols = useMemo(() => Object.keys(protocolFilters).sort(), [protocolFilters]);
 
@@ -77,15 +70,11 @@ export default function App() {
       if (!destination) {
         return false;
       }
-      const destinationAllowed = destinationFilters.hasOwnProperty(destination)
-        ? destinationFilters[destination]
-        : true;
+      const destinationAllowed = destinationFilters[destination] ?? true;
       if (!destinationAllowed) {
         return false;
       }
-      const protocolAllowed = protocolFilters.hasOwnProperty(tx.from)
-        ? protocolFilters[tx.from]
-        : true;
+      const protocolAllowed = protocolFilters[tx.from] ?? true;
       return protocolAllowed;
     });
   }, [transactions, destinationFilters, protocolFilters]);
@@ -103,17 +92,31 @@ export default function App() {
     return layer2Flows.filter(flow => activeDestinations.has(flow.name));
   }, [layer2Flows, activeDestinations, destinationFilters]);
 
-  console.log(filteredFlows);
-
   const bridgeTotalVolume = filteredFlows.reduce((sum, flow) => sum + flow.volumeUsd, 0);
 
-  const hiddenNodes = useMemo(() => {
-    const set = new Set<string>();
-    hiddenDestinations.forEach(item => set.add(item));
-    hiddenProtocols.forEach(item => set.add(item));
-    return set;
-  }, [hiddenDestinations, hiddenProtocols]);
+  const { bridgeSummaries, flattenedFlows, destinationColorMap } = useBridgeSummaries(filteredFlows, links);
 
+  useEffect(() => {
+    if (
+      selectedProtocolId !== "All" &&
+      !flattenedFlows.some(flow => flow.bridgeId === selectedProtocolId)
+    ) {
+      setSelectedProtocolId("All");
+    }
+  }, [flattenedFlows, selectedProtocolId]);
+
+  useEffect(() => {
+    if (selectedDestination !== "All" && !flattenedFlows.some(flow => flow.name === selectedDestination)) {
+      setSelectedDestination("All");
+    }
+  }, [flattenedFlows, selectedDestination]);
+
+  const legendSummaries = useMemo(() => bridgeSummaries.filter(summary => summary.flows.length > 0), [bridgeSummaries]);
+
+  const handleSelectFlow = (bridgeId: string, destination: string) => {
+    setSelectedProtocolId(bridgeId);
+    setSelectedDestination(destination);
+  };
 
   return (
     <div
@@ -154,6 +157,91 @@ export default function App() {
             Piexel Bridge Overview
           </button>
         </div>
+        {page === "piexel" && legendSummaries.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: "0.9rem",
+              paddingTop: "0.75rem",
+              maxWidth: "960px",
+            }}
+          >
+            {legendSummaries.map(summary => (
+              <div
+                key={summary.protocol.name}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.4rem",
+                  padding: "0.75rem 0.9rem",
+                  borderRadius: "16px",
+                  background: "rgba(15, 23, 42, 0.65)",
+                  border: "1px solid rgba(148, 163, 184, 0.35)",
+                  minWidth: "180px",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span
+                    style={{
+                      width: "10px",
+                      height: "10px",
+                      borderRadius: "9999px",
+                      background: summary.protocol.hue,
+                    }}
+                  />
+                  <span style={{ fontSize: "0.8rem", letterSpacing: "0.08em", textTransform: "uppercase", color: "#cbd5f5" }}>
+                    {summary.protocol.name}
+                  </span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                  {summary.flows.slice(0, 4).map(flow => {
+                    const isActive =
+                      selectedProtocolId !== "All" &&
+                      selectedDestination !== "All"
+                        ? selectedProtocolId === flow.bridgeId && selectedDestination === flow.name
+                        : selectedProtocolId === flow.bridgeId && (selectedDestination === "All" || selectedDestination === flow.name);
+                    const color = destinationColorMap.get(flow.name) ?? "#94a3b8";
+                    return (
+                      <button
+                        key={`${flow.bridgeId}-${flow.name}`}
+                        type="button"
+                        onClick={() => handleSelectFlow(flow.bridgeId, flow.name)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: "0.5rem",
+                          borderRadius: "12px",
+                          border: `1px solid ${isActive ? color : "rgba(148, 163, 184, 0.25)"}`,
+                          background: isActive ? `${color}22` : "rgba(15, 23, 42, 0.45)",
+                          color: "#f8fafc",
+                          padding: "0.4rem 0.55rem",
+                          cursor: "pointer",
+                          fontSize: "0.78rem",
+                        }}
+                      >
+                        <span style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                          <span
+                            style={{
+                              width: "12px",
+                              height: "12px",
+                              borderRadius: "9999px",
+                              background: color,
+                            }}
+                          />
+                          {flow.name}
+                        </span>
+                        <span style={{ color: "#cbd5f5" }}>{`${(flow.volumeUsd / 1_000_000).toFixed(1)}M`}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         <div
           style={{
             display: "flex",
@@ -279,10 +367,15 @@ export default function App() {
       >
         {page === "piexel" && (
           <PiexelBridgeOverview
-            flows={filteredFlows}
-            links={links}
             detailsOpen={bridgeDetailsOpen}
             onCloseDetails={() => setBridgeDetailsOpen(false)}
+            bridgeSummaries={bridgeSummaries}
+            flattenedFlows={flattenedFlows}
+            destinationColorMap={destinationColorMap}
+            selectedProtocolId={selectedProtocolId}
+            selectedDestination={selectedDestination}
+            onSelectProtocol={setSelectedProtocolId}
+            onSelectDestination={setSelectedDestination}
           />
         )}
       </main>
