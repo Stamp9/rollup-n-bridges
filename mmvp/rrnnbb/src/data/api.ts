@@ -89,7 +89,7 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
   const query = `
     query DepositsSince($fromBlock: Int!) {
       native: RelayDepository_RelayNativeDeposit(
-        limit: 5
+        limit: 10
         where: { block_number: { _gt: $fromBlock } }
         order_by: { block_number: asc }
       ) {
@@ -100,7 +100,7 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
         amount
       }
       erc20: RelayDepository_RelayErc20Deposit(
-        limit: 5
+        limit: 10
         where: { block_number: { _gt: $fromBlock } }
         order_by: { block_number: asc }
       ) {

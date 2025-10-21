@@ -294,7 +294,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   const [, setTick] = useState(0);
   const getFlowKey = (bridgeId: string, destination: string) => `${bridgeId}::${destination}`;
 
-  const TX_DURATION_MS = 8_000;
+  const TX_DURATION_MS = 7_000;
   const TICK_MS = 300;
   const MAX_ACTIVE = 24;
   const MAX_ENQUEUE_PER_TICK = 8;
