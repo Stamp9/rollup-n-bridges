@@ -163,7 +163,7 @@ export const useBridgeData = (
     let timerId: number | undefined;
 
     const fetchAndUpdate = async () => {
-      const response = await fetchBridgeTxsSince(blockRef.current);
+      const response = await fetchBridgeTxsSince(23627835, 142737000, 37141700);
       if (cancelled) {
         return;
       }

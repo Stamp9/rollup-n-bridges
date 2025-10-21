@@ -7,8 +7,6 @@ import OPcatRunningSrc from "../assets/cattie2.gif";
 import BasecatRunningSrc from "../assets/cattie1.gif";
 import relayNodeSrc from "../assets/relay.png";
 
-
-
 import { NodeCircle } from "./NodeCircle";
 import { TokenParticle } from "./TokenParticle";
 import type { Layer2Flow, Link } from "../data/model";
@@ -21,6 +19,18 @@ interface PiexelBridgeOverviewProps {
   detailsOpen: boolean;
   onCloseDetails: () => void;
 }
+
+  const formatMillions = (value: number) => `${(value / 1_000_000).toFixed(2)}M`;
+  const formatLatency = (value: number | undefined) => (value ? `${(value / 1000).toFixed(2)} s` : "—");
+  const formatAmount = (token: string, amount: number) =>
+    token === "ETH"
+      ? `${amount.toFixed(3)} ${token}`
+      : `${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })} ${token}`;
+
+
+
+// Amount of time between each query to the Envio indexer.
+export const QUERY_TICK = 3_000;
 
 const islandNode = { id: "Island", type: "L1" as const, x: 220, y: 320 };
 
@@ -102,6 +112,12 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
 }) => {
   const [selectedProtocolId, setSelectedProtocolId] = useState<string>("All");
   const [selectedDestination, setSelectedDestination] = useState<string>("All");
+  // Keep a map of
+  // < Base:
+  //     active: <0: cats0, 1: cats1, 2: cats2>
+  // >
+  //
+  const [baseState, setBaseState] = useState<BridgeState>();
 
   const destinationColorMap = useMemo(() => {
     const map = new Map(baseDestinationColorMap);
@@ -288,22 +304,25 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
     size: number;
     start: number;
     timestamp: number;
+    laneOffset?: number; // perpendicular offset from center path (px)
+    beginOffsetSec: number; // stable animation begin offset to avoid restarts
   };
-  type QueueState = { active: ActiveParticle[]; processed: Map<string, number> };
-  const queuesRef = useRef<Map<string, QueueState>>(new Map());
-  const [, setTick] = useState(0);
+  type BridgeState = { 
+    cats: Array<Array<ActiveParticle>>; 
+    next_idx: number,
+  };
   const getFlowKey = (bridgeId: string, destination: string) => `${bridgeId}::${destination}`;
 
+  // How long a tx should stay alive along the path
   const TX_DURATION_MS = 7_000;
-  const TICK_MS = 300;
+  const NUM_BATCHES = Math.ceil(TX_DURATION_MS / QUERY_TICK);
+  const TICK_MS = QUERY_TICK;
   const MAX_ACTIVE = 24;
   const MAX_ENQUEUE_PER_TICK = 8;
+  // Motion path visual width and lane settings
+  const PATH_BAND_WIDTH = 56; // px wide band rendered under the particles
+  const LANE_COUNT = 7; // number of discrete parallel lanes within the band
   // const catDurationSeconds = TX_DURATION_MS / 1_000;
-
-  useEffect(() => {
-  queuesRef.current.clear();
-  console.log("[🐾 queuesRef cleared due to flows update]");
-}, [flows]);
 
   useEffect(() => {
     let cancelled = false;
@@ -311,75 +330,90 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
       if (cancelled) return;
       const now = Date.now();
       let changed = false;
-      const map = queuesRef.current;
 
       // Walk current flows (by protocol) and enqueue new txs into per-flow queues
       bridgeSummaries.forEach(summary => {
         summary.flows.forEach(flow => {
-          const key = getFlowKey(flow.bridgeId, flow.name);
-          let state = map.get(key);
-          if (!state) {
-            state = { active: [], processed: new Map<string, number>() };
-            map.set(key, state);
-          }
-          const processed = state.processed;
-          const actives = state.active;
-          const tickSeen = new Map<string, number>();
-          // Enqueue a few unseen txs per tick
-          const newTxs = (flow.transactions ?? [])
-    .filter(tx => !processed.has(tx.id)) // 过滤已处理
-    .slice(0, MAX_ENQUEUE_PER_TICK);
 
-  if (newTxs.length > 0) {
-    newTxs.forEach(tx => {
+          const key = getFlowKey(flow.bridgeId, flow.name);
+
+          if (key !== "Relay::Base") {
+            return;
+          }
+          console.log(key);
+          var state = undefined;
+          if (key === "Relay::Base") {
+            state = baseState;
+          }
+
+          if (state === undefined) {
+            const bridgeState = { cats: [], next_idx: 0, };
+            let i = 0;
+            console.log(bridgeState);
+            while (i < NUM_BATCHES) {
+              bridgeState.cats.push([]);
+              i++;
+            }
+            setBaseState(bridgeState);
+            return;
+          }
+
+          // Advance ring buffer index safely within [0, NUM_BATCHES)
+          const curr_idx = state.next_idx % NUM_BATCHES;
+          state.next_idx = (state.next_idx + 1) % NUM_BATCHES;
+          const cats = state.cats[curr_idx];
+
+  if (flow.transactions.length > 0) {
+      var new_cats = new Array();
+    flow.transactions.forEach(tx => {
       const color = destinationColorMap.get(flow.name) ?? fallbackDestinationColor;
       const size = Math.max(5, Math.min(12, 5 + Math.log10(1 + Math.max(0, tx.amount))));
       const timestamp = now; // 没有 timestamp，就用当前时间
-      actives.push({ id: tx.id, token: tx.token, amount: tx.amount, color, size, start: now, timestamp });
 
-      // ✅ 记为已处理
-      processed.set(tx.id, timestamp);
+      // Assign a discrete random lane within a wide band
+      const laneStep = LANE_COUNT > 1 ? PATH_BAND_WIDTH / (LANE_COUNT - 1) : 0;
+      const laneIndex = Math.floor(Math.random() * LANE_COUNT);
+      const centerIndex = (LANE_COUNT - 1) / 2;
+      const laneOffset = (laneIndex - centerIndex) * laneStep;
+
+      // Distribute particles across NUM_BATCHES stable time slots so we keep ~2-3 concurrent streams
+      const batchSlot = curr_idx;
+      const baseBatchOffsetSec = (QUERY_TICK / 1000) * batchSlot;
+      // Small stagger within the same tick to avoid overlap
+      const intraTickStaggerSec = Math.random() * 0.05;
+      const beginOffsetSec = baseBatchOffsetSec + intraTickStaggerSec;
+
+      new_cats.push({
+        id: tx.id,
+        token: tx.token,
+        amount: tx.amount,
+        color,
+        size,
+        start: now,
+        timestamp,
+        laneOffset,
+        beginOffsetSec,
+      });
+
     });
+
+          console.log(curr_idx);
+          console.log(new_cats);
+      const cats = new_cats;
+      state.cats[curr_idx] = new_cats;
     changed = true;
   }
 
 
-          // Prune expired
-          const filtered = actives.filter(p => {
-            const alive = now - p.start < TX_DURATION_MS;
-            return alive;
-          });
-          if (filtered.length !== actives.length) {
-            state.active = filtered;
-            changed = true;
-          } else {
-            state.active = actives;
-          }
-          // Cap
-          if (state.active.length > MAX_ACTIVE) {
-            state.active.splice(0, state.active.length - MAX_ACTIVE);
-            changed = true;
-          }
         });
       });
 
-      if (changed) {
-        setTick(t => (t + 1) % 1_000_000);
-      }
     }, TICK_MS);
     return () => {
       cancelled = true;
       window.clearInterval(timer);
     };
   }, [bridgeSummaries, destinationColorMap]);
-
-  const formatMillions = (value: number) => `${(value / 1_000_000).toFixed(2)}M`;
-  const formatLatency = (value: number | undefined) => (value ? `${(value / 1000).toFixed(2)} s` : "—");
-  const formatAmount = (token: string, amount: number) =>
-    token === "ETH"
-      ? `${amount.toFixed(3)} ${token}`
-      : `${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })} ${token}`;
-
   return (
     <>
       <div
@@ -451,6 +485,8 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
               const endX = node.x - (dx / distance) * offset;
               const endY = node.y - (dy / distance) * offset;
               const path = `M${islandNode.x},${islandNode.y} L${endX},${endY}`;
+              const nx = -dy / distance; // unit normal x (perpendicular to path)
+              const ny = dx / distance;  // unit normal y
               const pathId = `piexel-bridge-path-${protocol.name}`;
               const matchesSelection = (flow: BridgeDestinationFlow) =>
                 (selectedProtocolId === "All" || flow.bridgeId === selectedProtocolId) &&
@@ -477,7 +513,16 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
               return (
                 <g key={`piexel-${protocol.name}`}>
                   <circle cx={node.x} cy={node.y} r={70} fill={`url(#piexelBridgeGlow-${protocol.name})`} opacity={0.45} />
+                  {/* Invisible center path (for reference / mpath if needed) */}
                   <path id={pathId} d={path} stroke="transparent" strokeWidth={4} fill="none" opacity={0} />
+                  {/* Visible wide band to suggest a thick route */}
+                  <path
+                    d={path}
+                    stroke={hexToRgba(hue, 0.18)}
+                    strokeWidth={PATH_BAND_WIDTH}
+                    strokeLinecap="round"
+                    fill="none"
+                  />
                   <title>{[`${protocol.name} bridge`].concat(tooltipLines).join("\n")}</title>
                     <>
                       <rect
@@ -498,8 +543,6 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                         const indicatorSize = 16;
                         const indicatorX = labelX - indicatorSize - 8;
                         const indicatorY = labelY - indicatorSize / 2;
-                        const queueKey = getFlowKey(flow.bridgeId, flow.name);
-                        const activeParticles = queuesRef.current.get(queueKey)?.active ?? [];
 
                         return (
                           <g
@@ -510,9 +553,12 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             }}
                             style={{ cursor: "pointer" }}
                           >
-                            
-                            {activeParticles.map((p, i) => {
+                          {baseState != undefined && baseState.cats.map((ap) => {
+                            return ap.map((p, i) => {
+                              // Use a stable per-particle begin offset to prevent animation restarts on re-render
                               const txDelay = delay + 0.15 * i;
+                              // const txDelay = p.beginOffsetSec;
+                              console.log(txDelay);
 
                                 const catSrc =
                                   flow.name === "Base"
@@ -527,9 +573,12 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                               const normalized = Math.min(1, baseScale / 6); 
                               const catSize = minSize + (maxSize - minSize) * normalized;
 
+                              const laneOffset = p.laneOffset ?? 0;
+                              const lanePath = `M${islandNode.x + nx * laneOffset},${islandNode.y + ny * laneOffset} L${endX + nx * laneOffset},${endY + ny * laneOffset}`;
+
                               return (
                                 <image
-                                  key={`cat-${p.id}-${p.start}`}
+                                  key={`cat-${i}-${p.id}-${p.start}`}
                                   href={catSrc}
                                   x={0}
                                   y={0}
@@ -543,13 +592,14 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                                   <animateMotion
                                     dur={`${TX_DURATION_MS / 1000}s`}
                                     repeatCount="indefinite"
-                                    path={path}
+                                    path={lanePath}
                                     rotate="auto"
                                     begin={`${txDelay}s`}
                                   />
                                 </image>
                               );
-                            })}
+                            })
+                          })}
                         {flow.name === "Base" ? (
                           <image
                             href={catWaitingSrc}

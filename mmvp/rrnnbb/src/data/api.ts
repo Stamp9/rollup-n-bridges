@@ -84,15 +84,20 @@ export const fetchLatestBlockNumber = async (): Promise<number> => {
   }
 };
 
-export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiResponse> => {
+export const fetchBridgeTxsSince = async (fromBlockEth: number, fromBlockOP: number, fromBlockBase: number): Promise<BridgeApiResponse> => {
+  console.log("fetching with height ", fromBlockEth);
   // Query both native and ERC20 deposits since a given block (exclusive)
   const query = `
-    query DepositsSince($fromBlock: Int!) {
+    query DepositsSince($fromBlockEth: Int!, $fromBlockOP: Int!, $fromBlockBase: Int!) {
       native: RelayDepository_RelayNativeDeposit(
-        limit: 10
-        where: { block_number: { _gt: $fromBlock } }
-        order_by: { block_number: asc }
-      ) {
+        limit: 10,
+        where: {
+          _or: [
+            {_and: {block_number: {_gt: $fromBlockEth}, chain_id: { _eq: 1}}},
+            {_and: {block_number: {_gt: $fromBlockOP}, chain_id: { _eq: 10}}},
+            {_and: {block_number: {_gt: $fromBlockBase}, chain_id: { _eq: 8453}}}
+          ]
+        }) {
         id
         chain_id
         block_number
@@ -100,9 +105,14 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
         amount
       }
       erc20: RelayDepository_RelayErc20Deposit(
-        limit: 10
-        where: { block_number: { _gt: $fromBlock } }
-        order_by: { block_number: asc }
+        limit: 10,
+        where: {
+          _or: [
+            {_and: {block_number: {_gt: $fromBlockEth}, chain_id: { _eq: 1}}},
+            {_and: {block_number: {_gt: $fromBlockOP}, chain_id: { _eq: 10}}},
+            {_and: {block_number: {_gt: $fromBlockBase}, chain_id: { _eq: 8453}}}
+          ]
+        }
       ) {
         id
         chain_id
@@ -123,7 +133,11 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
     chain_metadata: { block_height: number }[];
   }
 
-  const data = await fetchGraphQL<DepositsSinceResult>(query, { fromBlock: String(fromBlock) });
+  const data = await fetchGraphQL<DepositsSinceResult>(query, { 
+    fromBlockEth: String(23627835), 
+    fromBlockOP: String(142737000), 
+    fromBlockBase: String(37141700), 
+  });
 
   type NativeRow = {
     id: string;
@@ -146,12 +160,10 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
   const erc20Rows: Erc20Row[] = data?.erc20 ?? [];
 
   const nativeTxs: BridgeTx[] = nativeRows.map((r) => {
-    const chainID = Number(r.chain_id ?? 0) || 1;
-    const destinationChainID = chainID === 1 ? 10 : chainID;
     const destinationBlockNumber = Number(r.block_number);
     return {
       id: r.id,
-      chainID: destinationChainID,
+      chainID: r.chain_id,
       blockNumber: Number(r.block_number),
       destinationBlockNumber,
       amount: typeof r.amount === 'string' ? Number(r.amount) : (r.amount ?? 0),
@@ -167,7 +179,7 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
     const destinationBlockNumber = Number(r.block_number);
     return {
       id: r.id,
-      chainID: destinationChainID,
+      chainID: r.chain_id,
       blockNumber: Number(r.block_number),
       destinationBlockNumber,
       amount: typeof r.amount === 'string' ? Number(r.amount) : (r.amount ?? 0),

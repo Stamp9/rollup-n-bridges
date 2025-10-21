@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { PiexelBridgeOverview } from "./components/PiexelBridgeOverview";
+import { QUERY_TICK, PiexelBridgeOverview } from "./components/PiexelBridgeOverview";
 import type { BridgeTx } from "./data/api";
 import { nodes } from "./data/model";
 import {
@@ -9,6 +9,7 @@ import {
   DEFAULT_HISTORY_WINDOW_MS,
   chainIdToDestination,
 } from "./data/useBridgeData";
+
 
 const formatMillions = (value: number) => `${(value / 1_000_000).toFixed(1)}M`;
 
@@ -19,7 +20,7 @@ type PageView = "network" | "bridge" | "piexel";
 export default function App() {
   const [page, setPage] = useState<PageView>("piexel");
   const [bridgeDetailsOpen, setBridgeDetailsOpen] = useState(false);
-  const { blockNumber, transactions } = useBridgeData(3_000, DEFAULT_HISTORY_WINDOW_MS);
+  const { blockNumber, transactions } = useBridgeData(QUERY_TICK, DEFAULT_HISTORY_WINDOW_MS);
   const [destinationFilters, setDestinationFilters] = useState<Record<string, boolean>>({});
   const [protocolFilters, setProtocolFilters] = useState<Record<string, boolean>>({});
 
@@ -103,7 +104,6 @@ export default function App() {
     return layer2Flows.filter(flow => activeDestinations.has(flow.name));
   }, [layer2Flows, activeDestinations, destinationFilters]);
 
-  console.log(filteredFlows);
 
   const bridgeTotalVolume = filteredFlows.reduce((sum, flow) => sum + flow.volumeUsd, 0);
 
