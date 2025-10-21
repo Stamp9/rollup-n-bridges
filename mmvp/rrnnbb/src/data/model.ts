@@ -61,7 +61,10 @@ export const tokenColors: Record<string, string> = {
   ETH: "#f97316",
 };
 
-export const tokenMetadata: Record<string, { decimals: number; coingeckoId: string }> = {
+export const tokenMetadata: Record<
+  string,
+  { decimals: number; coingeckoId: string }
+> = {
   USDC: { decimals: 6, coingeckoId: "usd-coin" },
   USDT: { decimals: 6, coingeckoId: "tether" },
   ETH: { decimals: 18, coingeckoId: "ethereum" },

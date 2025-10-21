@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { QUERY_TICK, PiexelBridgeOverview } from "./components/PiexelBridgeOverview";
+import {
+  QUERY_TICK,
+  PiexelBridgeOverview,
+} from "./components/PiexelBridgeOverview";
 import type { BridgeTx } from "./data/api";
 import { nodes } from "./data/model";
 import {
@@ -10,27 +13,35 @@ import {
   chainIdToDestination,
 } from "./data/useBridgeData";
 
-
 const formatMillions = (value: number) => `${(value / 1_000_000).toFixed(1)}M`;
 
-const bridgeNodes = nodes.filter(node => node.type === "Bridge").map(node => node.id);
+const bridgeNodes = nodes
+  .filter((node) => node.type === "Bridge")
+  .map((node) => node.id);
 
 type PageView = "network" | "bridge" | "piexel";
 
 export default function App() {
   const [page, setPage] = useState<PageView>("piexel");
   const [bridgeDetailsOpen, setBridgeDetailsOpen] = useState(false);
-  const { blockNumber, transactions } = useBridgeData(QUERY_TICK, DEFAULT_HISTORY_WINDOW_MS);
-  const [destinationFilters, setDestinationFilters] = useState<Record<string, boolean>>({});
-  const [protocolFilters, setProtocolFilters] = useState<Record<string, boolean>>({});
+  const { blockNumber, transactions } = useBridgeData(
+    QUERY_TICK,
+    DEFAULT_HISTORY_WINDOW_MS,
+  );
+  const [destinationFilters, setDestinationFilters] = useState<
+    Record<string, boolean>
+  >({});
+  const [protocolFilters, setProtocolFilters] = useState<
+    Record<string, boolean>
+  >({});
 
   // Intentionally do not auto-populate destination filters from transactions for now.
 
   useEffect(() => {
-    setProtocolFilters(prev => {
+    setProtocolFilters((prev) => {
       const next = { ...prev };
       let changed = false;
-      bridgeNodes.forEach(protocol => {
+      bridgeNodes.forEach((protocol) => {
         if (!(protocol in next)) {
           next[protocol] = true;
           changed = true;
@@ -41,11 +52,17 @@ export default function App() {
   }, [transactions]);
 
   const toggleDestination = (destination: string) => {
-    setDestinationFilters(prev => ({ ...prev, [destination]: !(prev[destination] ?? true) }));
+    setDestinationFilters((prev) => ({
+      ...prev,
+      [destination]: !(prev[destination] ?? true),
+    }));
   };
 
   const toggleProtocol = (protocol: string) => {
-    setProtocolFilters(prev => ({ ...prev, [protocol]: !(prev[protocol] ?? true) }));
+    setProtocolFilters((prev) => ({
+      ...prev,
+      [protocol]: !(prev[protocol] ?? true),
+    }));
   };
 
   const activeDestinations = useMemo(() => {
@@ -53,27 +70,39 @@ export default function App() {
     if (entries.length === 0) {
       return new Set<string>();
     }
-    return new Set(entries.filter(([, enabled]) => enabled).map(([name]) => name));
+    return new Set(
+      entries.filter(([, enabled]) => enabled).map(([name]) => name),
+    );
   }, [destinationFilters]);
 
   const hiddenDestinations = useMemo(() => {
     const entries = Object.entries(destinationFilters);
-    return new Set(entries.filter(([, enabled]) => !enabled).map(([name]) => name));
+    return new Set(
+      entries.filter(([, enabled]) => !enabled).map(([name]) => name),
+    );
   }, [destinationFilters]);
 
   const hiddenProtocols = useMemo(() => {
     const entries = Object.entries(protocolFilters);
-    return new Set(entries.filter(([, enabled]) => !enabled).map(([name]) => name));
+    return new Set(
+      entries.filter(([, enabled]) => !enabled).map(([name]) => name),
+    );
   }, [protocolFilters]);
 
-  const availableDestinations = useMemo(() => Object.keys(destinationFilters).sort(), [destinationFilters]);
-  const availableProtocols = useMemo(() => Object.keys(protocolFilters).sort(), [protocolFilters]);
+  const availableDestinations = useMemo(
+    () => Object.keys(destinationFilters).sort(),
+    [destinationFilters],
+  );
+  const availableProtocols = useMemo(
+    () => Object.keys(protocolFilters).sort(),
+    [protocolFilters],
+  );
 
   const filteredTransactions: BridgeTx[] = useMemo(() => {
     if (transactions.length === 0) {
       return [];
     }
-    return transactions.filter(tx => {
+    return transactions.filter((tx) => {
       const destination = chainIdToDestination[tx.chainID];
       if (!destination) {
         return false;
@@ -101,19 +130,20 @@ export default function App() {
     if (!hasFilters) {
       return layer2Flows;
     }
-    return layer2Flows.filter(flow => activeDestinations.has(flow.name));
+    return layer2Flows.filter((flow) => activeDestinations.has(flow.name));
   }, [layer2Flows, activeDestinations, destinationFilters]);
 
-
-  const bridgeTotalVolume = filteredFlows.reduce((sum, flow) => sum + flow.volumeUsd, 0);
+  const bridgeTotalVolume = filteredFlows.reduce(
+    (sum, flow) => sum + flow.volumeUsd,
+    0,
+  );
 
   const hiddenNodes = useMemo(() => {
     const set = new Set<string>();
-    hiddenDestinations.forEach(item => set.add(item));
-    hiddenProtocols.forEach(item => set.add(item));
+    hiddenDestinations.forEach((item) => set.add(item));
+    hiddenProtocols.forEach((item) => set.add(item));
     return set;
   }, [hiddenDestinations, hiddenProtocols]);
-
 
   return (
     <div
@@ -142,8 +172,10 @@ export default function App() {
               padding: "0.5rem 1.25rem",
               borderRadius: "9999px",
               border: "1px solid",
-              borderColor: page === "piexel" ? "#facc15" : "rgba(148, 163, 184, 0.4)",
-              background: page === "piexel" ? "rgba(250, 204, 21, 0.12)" : "transparent",
+              borderColor:
+                page === "piexel" ? "#facc15" : "rgba(148, 163, 184, 0.4)",
+              background:
+                page === "piexel" ? "rgba(250, 204, 21, 0.12)" : "transparent",
               color: "#f8fafc",
               cursor: "pointer",
               fontWeight: 600,
@@ -165,17 +197,24 @@ export default function App() {
             fontSize: "0.85rem",
           }}
         >
-          <span>Block #{blockNumber.toLocaleString()} · Bridge volume last tick {formatMillions(bridgeTotalVolume)}</span>
+          <span>
+            Block #{blockNumber.toLocaleString()} · Bridge volume last tick{" "}
+            {formatMillions(bridgeTotalVolume)}
+          </span>
           {page !== "network" && (
             <button
               type="button"
-              onClick={() => setBridgeDetailsOpen(prev => !prev)}
+              onClick={() => setBridgeDetailsOpen((prev) => !prev)}
               style={{
                 padding: "0.45rem 1.15rem",
                 borderRadius: "9999px",
                 border: "1px solid",
-                borderColor: bridgeDetailsOpen ? "#22c55e" : "rgba(148, 163, 184, 0.45)",
-                background: bridgeDetailsOpen ? "rgba(34, 197, 94, 0.18)" : "rgba(15, 23, 42, 0.55)",
+                borderColor: bridgeDetailsOpen
+                  ? "#22c55e"
+                  : "rgba(148, 163, 184, 0.45)",
+                background: bridgeDetailsOpen
+                  ? "rgba(34, 197, 94, 0.18)"
+                  : "rgba(15, 23, 42, 0.55)",
                 color: "#f8fafc",
                 cursor: "pointer",
                 fontSize: "0.78rem",
@@ -184,7 +223,9 @@ export default function App() {
                 transition: "background 0.2s ease",
               }}
             >
-              {bridgeDetailsOpen ? "Hide bridge details" : "Show bridge details"}
+              {bridgeDetailsOpen
+                ? "Hide bridge details"
+                : "Show bridge details"}
             </button>
           )}
         </div>
@@ -198,10 +239,17 @@ export default function App() {
             alignItems: "center",
           }}
         >
-          <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#a5b4fc" }}>
+          <span
+            style={{
+              fontSize: "0.75rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "#a5b4fc",
+            }}
+          >
             Protocols
           </span>
-          {availableProtocols.map(protocol => {
+          {availableProtocols.map((protocol) => {
             const enabled = protocolFilters[protocol] ?? true;
             return (
               <button
@@ -212,8 +260,12 @@ export default function App() {
                   padding: "0.35rem 0.9rem",
                   borderRadius: "9999px",
                   border: "1px solid",
-                  borderColor: enabled ? "#38bdf8" : "rgba(148, 163, 184, 0.35)",
-                  background: enabled ? "rgba(59, 130, 246, 0.18)" : "rgba(15, 23, 42, 0.4)",
+                  borderColor: enabled
+                    ? "#38bdf8"
+                    : "rgba(148, 163, 184, 0.35)",
+                  background: enabled
+                    ? "rgba(59, 130, 246, 0.18)"
+                    : "rgba(15, 23, 42, 0.4)",
                   color: "#f8fafc",
                   cursor: "pointer",
                   fontSize: "0.82rem",
@@ -237,10 +289,17 @@ export default function App() {
             alignItems: "center",
           }}
         >
-          <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#a5b4fc" }}>
+          <span
+            style={{
+              fontSize: "0.75rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "#a5b4fc",
+            }}
+          >
             Destinations
           </span>
-          {availableDestinations.map(destination => {
+          {availableDestinations.map((destination) => {
             const enabled = destinationFilters[destination] ?? true;
             return (
               <button
@@ -252,7 +311,9 @@ export default function App() {
                   borderRadius: "9999px",
                   border: "1px solid",
                   borderColor: enabled ? "#22c55e" : "rgba(148, 163, 184, 0.4)",
-                  background: enabled ? "rgba(34, 197, 94, 0.16)" : "rgba(15, 23, 42, 0.4)",
+                  background: enabled
+                    ? "rgba(34, 197, 94, 0.16)"
+                    : "rgba(15, 23, 42, 0.4)",
                   color: "#f8fafc",
                   cursor: "pointer",
                   fontSize: "0.85rem",

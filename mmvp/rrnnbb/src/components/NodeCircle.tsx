@@ -7,9 +7,16 @@ interface NodeProps {
   imageRadius?: number;
 }
 
-export const NodeCircle: React.FC<NodeProps> = ({ x, y, label, type, imageSrc, imageRadius }) => {
+export const NodeCircle: React.FC<NodeProps> = ({
+  x,
+  y,
+  label,
+  type,
+  imageSrc,
+  imageRadius,
+}) => {
   const baseRadius = 40;
-  const radius = imageSrc ? imageRadius ?? 48 : baseRadius;
+  const radius = imageSrc ? (imageRadius ?? 48) : baseRadius;
 
   if (imageSrc) {
     const size = radius * 2;
@@ -29,11 +36,14 @@ export const NodeCircle: React.FC<NodeProps> = ({ x, y, label, type, imageSrc, i
     );
   }
 
-  const color = type === "L1" ? "#0077b6" : type === "Bridge" ? "#90e0ef" : "#00b4d8";
+  const color =
+    type === "L1" ? "#0077b6" : type === "Bridge" ? "#90e0ef" : "#00b4d8";
   return (
     <g>
       <circle cx={x} cy={y} r={baseRadius} fill={color} opacity={0.9} />
-      <text x={x} y={y + 5} textAnchor="middle" fill="white" fontSize="14">{label}</text>
+      <text x={x} y={y + 5} textAnchor="middle" fill="white" fontSize="14">
+        {label}
+      </text>
       <title>{label}</title>
     </g>
   );

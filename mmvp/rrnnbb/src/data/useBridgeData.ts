@@ -19,7 +19,9 @@ const DEFAULT_LATENCY_MS = 4200;
 
 const destinationColorFallback = "#64748b";
 
-const destinationColors = new Map<string, string>(layer2Destinations.map(dest => [dest.name, dest.color]));
+const destinationColors = new Map<string, string>(
+  layer2Destinations.map((dest) => [dest.name, dest.color]),
+);
 
 interface BridgeDataState {
   blockNumber: number;
@@ -43,16 +45,22 @@ export const buildAggregatedData = (
   transactions: BridgeTx[],
   windowMs: number,
 ): { links: Link[]; layer2Flows: Layer2Flow[] } => {
-  const linkMap = new Map<string, {
-    source: string;
-    target: string;
-    blockNumber: number;
-    lastUpdated: number;
-    tokens: Map<string, { volumeUsd: number; txCount: number; txPerMinute: number }>;
-    txs: BridgeTx[];
-  }>();
+  const linkMap = new Map<
+    string,
+    {
+      source: string;
+      target: string;
+      blockNumber: number;
+      lastUpdated: number;
+      tokens: Map<
+        string,
+        { volumeUsd: number; txCount: number; txPerMinute: number }
+      >;
+      txs: BridgeTx[];
+    }
+  >();
 
-  transactions.forEach(tx => {
+  transactions.forEach((tx) => {
     const target = chainIdToDestination[tx.chainID];
     if (!target) {
       return;
@@ -75,21 +83,27 @@ export const buildAggregatedData = (
     entry.lastUpdated = Math.max(entry.lastUpdated, tx.timestamp);
     entry.txs.push(tx);
 
-    const tokenEntry = entry.tokens.get(tx.token) ?? { volumeUsd: 0, txCount: 0, txPerMinute: 0 };
+    const tokenEntry = entry.tokens.get(tx.token) ?? {
+      volumeUsd: 0,
+      txCount: 0,
+      txPerMinute: 0,
+    };
     tokenEntry.volumeUsd += mapTxToVolume(tx);
     tokenEntry.txCount += 1;
     entry.tokens.set(tx.token, tokenEntry);
   });
 
   const links: Link[] = Array.from(linkMap.entries()).map(([key, value]) => {
-    const tokens: TokenFlow[] = Array.from(value.tokens.entries()).map(([symbol, metrics]) => ({
-      symbol,
-      volumeUsd: metrics.volumeUsd,
-      txPerMinute: normalizeTxPerMinute(metrics.txCount, windowMs),
-      avgLatencyMs: DEFAULT_LATENCY_MS,
-      txCount: metrics.txCount,
-      lastUpdated: value.lastUpdated,
-    }));
+    const tokens: TokenFlow[] = Array.from(value.tokens.entries()).map(
+      ([symbol, metrics]) => ({
+        symbol,
+        volumeUsd: metrics.volumeUsd,
+        txPerMinute: normalizeTxPerMinute(metrics.txCount, windowMs),
+        avgLatencyMs: DEFAULT_LATENCY_MS,
+        txCount: metrics.txCount,
+        lastUpdated: value.lastUpdated,
+      }),
+    );
 
     return {
       id: key,
@@ -103,7 +117,7 @@ export const buildAggregatedData = (
   });
 
   const destinationMap = new Map<string, Layer2Flow>();
-  transactions.forEach(tx => {
+  transactions.forEach((tx) => {
     const target = chainIdToDestination[tx.chainID];
     if (!target) {
       return;
@@ -135,12 +149,18 @@ export const useBridgeData = (
   intervalMs: number = 10_000,
   historyWindowMs: number = DEFAULT_HISTORY_WINDOW_MS,
 ) => {
-  const SESSION_KEY = 'op-tip-block';
+  const SESSION_KEY = "op-tip-block";
   const [state, setState] = useState<BridgeDataState>(() => {
     let startBlock = initialLatestBlockNumber;
     try {
-      const cached = Number.parseInt(sessionStorage.getItem(SESSION_KEY) ?? '', 10);
-      startBlock = Number.isFinite(cached) && cached > 0 ? cached : initialLatestBlockNumber;
+      const cached = Number.parseInt(
+        sessionStorage.getItem(SESSION_KEY) ?? "",
+        10,
+      );
+      startBlock =
+        Number.isFinite(cached) && cached > 0
+          ? cached
+          : initialLatestBlockNumber;
     } catch {
       // Ignore sessionStorage errors; use pre-fetched initialLatestBlockNumber
     }
@@ -167,19 +187,24 @@ export const useBridgeData = (
       if (cancelled) {
         return;
       }
-      setState(prev => {
+      setState((prev) => {
         const mergedTxs = [...prev.transactions, ...response.transactions];
         const txMap = new Map<string, BridgeTx>();
-        mergedTxs.forEach(tx => {
+        mergedTxs.forEach((tx) => {
           const existing = txMap.get(tx.id);
           if (!existing || (tx.timestamp ?? 0) >= (existing.timestamp ?? 0)) {
             txMap.set(tx.id, tx);
           }
         });
-        const dedupedTxs = Array.from(txMap.values()).sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0));
+        const dedupedTxs = Array.from(txMap.values()).sort(
+          (a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0),
+        );
         const cutoff = Date.now() - historyWindowMs;
-        const filteredTxs = dedupedTxs.filter(tx => tx.timestamp >= cutoff);
-        const { links, layer2Flows } = buildAggregatedData(filteredTxs, historyWindowMs);
+        const filteredTxs = dedupedTxs.filter((tx) => tx.timestamp >= cutoff);
+        const { links, layer2Flows } = buildAggregatedData(
+          filteredTxs,
+          historyWindowMs,
+        );
         return {
           blockNumber: response.blockNumber,
           links,
@@ -196,12 +221,18 @@ export const useBridgeData = (
     };
 
     const initialise = async () => {
-      const cached = Number.parseInt(sessionStorage.getItem(SESSION_KEY) ?? '', 10);
-      const startBlock = Number.isFinite(cached) && cached > 0 ? cached : initialLatestBlockNumber;
+      const cached = Number.parseInt(
+        sessionStorage.getItem(SESSION_KEY) ?? "",
+        10,
+      );
+      const startBlock =
+        Number.isFinite(cached) && cached > 0
+          ? cached
+          : initialLatestBlockNumber;
       if (cancelled) {
         return;
       }
-      setState(prev => ({ ...prev, blockNumber: startBlock }));
+      setState((prev) => ({ ...prev, blockNumber: startBlock }));
       blockRef.current = startBlock;
       await fetchAndUpdate();
       if (!cancelled && intervalMs > 0) {

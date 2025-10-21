@@ -21,7 +21,8 @@ const getProcessEnv = (): EnvRecord => {
   if (typeof globalThis !== "object") {
     return {};
   }
-  const possibleProcess = (globalThis as { process?: { env?: EnvRecord } }).process;
+  const possibleProcess = (globalThis as { process?: { env?: EnvRecord } })
+    .process;
   return possibleProcess?.env ?? {};
 };
 
@@ -45,17 +46,20 @@ const HASURA_ADMIN_SECRET =
   maybeProcessEnv?.HASURA_ADMIN_SECRET ??
   "testing";
 
-const fetchGraphQL = async <TData>(query: string, variables: Record<string, unknown>): Promise<TData> => {
+const fetchGraphQL = async <TData>(
+  query: string,
+  variables: Record<string, unknown>,
+): Promise<TData> => {
   const res = await fetch(GRAPHQL_URL, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': HASURA_ADMIN_SECRET,
+      "Content-Type": "application/json",
+      "x-hasura-admin-secret": HASURA_ADMIN_SECRET,
     },
     body: JSON.stringify({ query, variables }),
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
+    const text = await res.text().catch(() => "");
     throw new Error(`GraphQL HTTP ${res.status}: ${text}`);
   }
   const json = await res.json();
@@ -76,7 +80,9 @@ export const fetchLatestBlockNumber = async (): Promise<number> => {
     }
   `;
   try {
-    const data = await fetchGraphQL<{ chain_metadata: { block_height: number }[] }>(query, {});
+    const data = await fetchGraphQL<{
+      chain_metadata: { block_height: number }[];
+    }>(query, {});
     return data?.chain_metadata?.[0]?.block_height ?? 0;
   } catch {
     // Fallback for environments without the indexer running
@@ -84,7 +90,11 @@ export const fetchLatestBlockNumber = async (): Promise<number> => {
   }
 };
 
-export const fetchBridgeTxsSince = async (fromBlockEth: number, fromBlockOP: number, fromBlockBase: number): Promise<BridgeApiResponse> => {
+export const fetchBridgeTxsSince = async (
+  fromBlockEth: number,
+  fromBlockOP: number,
+  fromBlockBase: number,
+): Promise<BridgeApiResponse> => {
   console.log("fetching with height ", fromBlockEth);
   // Query both native and ERC20 deposits since a given block (exclusive)
   const query = `
@@ -133,10 +143,10 @@ export const fetchBridgeTxsSince = async (fromBlockEth: number, fromBlockOP: num
     chain_metadata: { block_height: number }[];
   }
 
-  const data = await fetchGraphQL<DepositsSinceResult>(query, { 
-    fromBlockEth: String(23627835), 
-    fromBlockOP: String(142737000), 
-    fromBlockBase: String(37141700), 
+  const data = await fetchGraphQL<DepositsSinceResult>(query, {
+    fromBlockEth: String(23627835),
+    fromBlockOP: String(142737000),
+    fromBlockBase: String(37141700),
   });
 
   type NativeRow = {
@@ -166,9 +176,9 @@ export const fetchBridgeTxsSince = async (fromBlockEth: number, fromBlockOP: num
       chainID: r.chain_id,
       blockNumber: Number(r.block_number),
       destinationBlockNumber,
-      amount: typeof r.amount === 'string' ? Number(r.amount) : (r.amount ?? 0),
-      token: 'ETH',
-      from: 'Relay',
+      amount: typeof r.amount === "string" ? Number(r.amount) : (r.amount ?? 0),
+      token: "ETH",
+      from: "Relay",
       timestamp: now,
     };
   });
@@ -182,16 +192,19 @@ export const fetchBridgeTxsSince = async (fromBlockEth: number, fromBlockOP: num
       chainID: r.chain_id,
       blockNumber: Number(r.block_number),
       destinationBlockNumber,
-      amount: typeof r.amount === 'string' ? Number(r.amount) : (r.amount ?? 0),
+      amount: typeof r.amount === "string" ? Number(r.amount) : (r.amount ?? 0),
       // If the indexer returns a symbol, use it; otherwise default to USDC for visualization
-      token: (r.token && r.token.length <= 10) ? (r.token as string) : 'USDC',
-      from: 'Relay',
+      token: r.token && r.token.length <= 10 ? (r.token as string) : "USDC",
+      from: "Relay",
       timestamp: now,
     };
   });
 
-  const txs = [...nativeTxs, ...erc20Txs].sort((a, b) => a.blockNumber - b.blockNumber);
-  const latestBlock = txs.length > 0 ? txs[txs.length - 1].blockNumber : fromBlock;
+  const txs = [...nativeTxs, ...erc20Txs].sort(
+    (a, b) => a.blockNumber - b.blockNumber,
+  );
+  const latestBlock =
+    txs.length > 0 ? txs[txs.length - 1].blockNumber : fromBlock;
   const bridgeBlock = data?.chain_metadata?.[0]?.block_height ?? latestBlock;
 
   return {

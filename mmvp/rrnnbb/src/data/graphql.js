@@ -1,20 +1,21 @@
 // Generic GraphQL fetcher to reuse across queries
 // Ensure this module is self-contained and reads config from env.
-const GRAPHQL_URL = process.env.GRAPHQL_URL || 'http://localhost:8080/v1/graphql';
-const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET || 'testing';
+const GRAPHQL_URL =
+  process.env.GRAPHQL_URL || "http://localhost:8080/v1/graphql";
+const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET || "testing";
 
 async function fetchGraphQL(query, variables = {}) {
   const res = await fetch(GRAPHQL_URL, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': HASURA_ADMIN_SECRET,
+      "Content-Type": "application/json",
+      "x-hasura-admin-secret": HASURA_ADMIN_SECRET,
     },
     body: JSON.stringify({ query, variables }),
   });
 
   if (!res.ok) {
-    const text = await res.text().catch(() => '');
+    const text = await res.text().catch(() => "");
     throw new Error(`GraphQL HTTP ${res.status}: ${text}`);
   }
   const json = await res.json();
@@ -50,10 +51,9 @@ async function fetchErc20Deposits(limit = 10) {
         token
       }
     }
-  `
+  `;
 
   return fetchGraphQL(query, { limit });
 }
-
 
 module.exports = { GRAPHQL_URL, fetchLatestNativeDeposits, fetchErc20Deposits };
