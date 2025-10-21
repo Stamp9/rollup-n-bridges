@@ -3,9 +3,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import islandSrc from "../assets/ethereum.png";
 import temBgSrc from "../assets/tem_bg.png";
 import catWaitingSrc from "../assets/cat_wating.png";
-import OPcatRunningSrc from "../assets/cattie1.gif";
-import BasecatRunningSrc from "../assets/cattie2.gif";
+import OPcatRunningSrc from "../assets/cattie2.gif";
+import BasecatRunningSrc from "../assets/cattie1.gif";
 import relayNodeSrc from "../assets/relay.png";
+
+
 
 import { NodeCircle } from "./NodeCircle";
 import { TokenParticle } from "./TokenParticle";
@@ -54,7 +56,6 @@ const blockExplorerByChain: Record<number, { buildUrl: (blockNumber: number) => 
 };
 
 const defaultBlockExplorer = blockExplorerByChain[1];
-
 const hexToRgba = (hex: string, alpha: number) => {
   if (!hex || typeof hex !== "string" || !hex.startsWith("#")) {
     return `rgba(100, 116, 139, ${alpha})`;
@@ -279,8 +280,16 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   const activeTransactions = activeFlow?.transactions ?? [];
 
   // Per-flow particle queues sourced from flow.transactions
-  type ActiveParticle = { id: string; token: string; amount: number; color: string; size: number; start: number };
-  type QueueState = { active: ActiveParticle[]; seen: Set<string> };
+  type ActiveParticle = {
+    id: string;
+    token: string;
+    amount: number;
+    color: string;
+    size: number;
+    start: number;
+    timestamp: number;
+  };
+  type QueueState = { active: ActiveParticle[]; processed: Map<string, number> };
   const queuesRef = useRef<Map<string, QueueState>>(new Map());
   const [, setTick] = useState(0);
   const getFlowKey = (bridgeId: string, destination: string) => `${bridgeId}::${destination}`;
@@ -289,7 +298,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   const TICK_MS = 300;
   const MAX_ACTIVE = 24;
   const MAX_ENQUEUE_PER_TICK = 8;
-
+  // const catDurationSeconds = TX_DURATION_MS / 1_000;
   useEffect(() => {
     let cancelled = false;
     const timer = window.setInterval(() => {
@@ -304,27 +313,49 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
           const key = getFlowKey(flow.bridgeId, flow.name);
           let state = map.get(key);
           if (!state) {
-            state = { active: [], seen: new Set<string>() };
+            state = { active: [], processed: new Map<string, number>() };
             map.set(key, state);
           }
-          const seen = state.seen;
+          const processed = state.processed;
           const actives = state.active;
+          const tickSeen = new Map<string, number>();
           // Enqueue a few unseen txs per tick
-          const newTxs = (flow.transactions ?? []).filter(tx => !seen.has(tx.id)).slice(0, MAX_ENQUEUE_PER_TICK);
+          const newTxs = (flow.transactions ?? [])
+            .filter(tx => {
+              const lastSeen = processed.get(tx.id) ?? 0;
+              const timestamp = tx.timestamp ?? 0;
+              if (timestamp <= lastSeen) {
+                return false;
+              }
+              const seenThisTick = tickSeen.get(tx.id) ?? 0;
+              if (timestamp <= seenThisTick) {
+                return false;
+              }
+              tickSeen.set(tx.id, timestamp);
+              return true;
+            })
+            .slice(0, MAX_ENQUEUE_PER_TICK);
           if (newTxs.length > 0) {
             newTxs.forEach(tx => {
-              const color = tokenColors[tx.token] ?? (destinationColorMap.get(flow.name) ?? fallbackDestinationColor);
-              const size = Math.max(5, Math.min(12, 5 + Math.log10(1 + Math.max(0, tx.amount))))
-              actives.push({ id: tx.id, token: tx.token, amount: tx.amount, color, size, start: now });
-              seen.add(tx.id);
+              const color = destinationColorMap.get(flow.name) ?? fallbackDestinationColor;
+              const size = Math.max(5, Math.min(12, 5 + Math.log10(1 + Math.max(0, tx.amount))));
+              const timestamp = tx.timestamp ?? now;
+              actives.push({ id: tx.id, token: tx.token, amount: tx.amount, color, size, start: now, timestamp });
+              processed.set(tx.id, timestamp);
             });
             changed = true;
           }
+
           // Prune expired
-          const before = actives.length;
-          state.active = actives.filter(p => now - p.start < TX_DURATION_MS);
-          if (state.active.length !== before) {
+          const filtered = actives.filter(p => {
+            const alive = now - p.start < TX_DURATION_MS;
+            return alive;
+          });
+          if (filtered.length !== actives.length) {
+            state.active = filtered;
             changed = true;
+          } else {
+            state.active = actives;
           }
           // Cap
           if (state.active.length > MAX_ACTIVE) {
@@ -422,6 +453,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
               const endX = node.x - (dx / distance) * offset;
               const endY = node.y - (dy / distance) * offset;
               const path = `M${islandNode.x},${islandNode.y} L${endX},${endY}`;
+              const pathId = `piexel-bridge-path-${protocol.name}`;
               const matchesSelection = (flow: BridgeDestinationFlow) =>
                 (selectedProtocolId === "All" || flow.bridgeId === selectedProtocolId) &&
                 (selectedDestination === "All" || flow.name === selectedDestination);
@@ -447,7 +479,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
               return (
                 <g key={`piexel-${protocol.name}`}>
                   <circle cx={node.x} cy={node.y} r={70} fill={`url(#piexelBridgeGlow-${protocol.name})`} opacity={0.45} />
-                  <path d={path} stroke="transparent" strokeWidth={4} fill="none" opacity={0} />
+                  <path id={pathId} d={path} stroke="transparent" strokeWidth={4} fill="none" opacity={0} />
                   <title>{[`${protocol.name} bridge`].concat(tooltipLines).join("\n")}</title>
                     <>
                       <rect
@@ -480,56 +512,37 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             }}
                             style={{ cursor: "pointer" }}
                           >
-                            {flow.name === "Base" ? (
-                              <image
-                                href={BasecatRunningSrc}
-                                x={0}
-                                y={0}
-                                width={size * 4.8}
-                                height={size * 3.2}
-                                preserveAspectRatio="xMidYMid meet"
-                                style={{ transform: `translate(${-size * 1.2}px, ${-size * 1.1}px)` }}
-                              >
-                                <animateMotion
-                                  dur={`${6}s`}
-                                  repeatCount="indefinite"
-                                  path={path}
-                                  rotate="auto"
-                                  begin={`${delay}s`}
-                                />
-                              </image>
-                            ) : flow.name === "Optimism" ? (
-                              <image
-                                href={OPcatRunningSrc}
-                                x={0}
-                                y={0}
-                                width={size * 4.8}
-                                height={size * 3.2}
-                                preserveAspectRatio="xMidYMid meet"
-                                style={{ transform: `translate(${-size * 1.2}px, ${-size * 1.1}px)` }}
-                              >
-                                <animateMotion
-                                  dur={`${6}s`}
-                                  repeatCount="indefinite"
-                                  path={path}
-                                  rotate="auto"
-                                  begin={`${delay}s`}
-                                />
-                              </image>
-                            ) : (
-                              <TokenParticle path={path} delay={delay} color={flow.color} duration={6} size={size} />
-                            )}
+                            
                             {activeParticles.map((p, i) => {
                               const txDelay = delay + 0.15 * i;
+
+                                const catSrc =
+                                  flow.name === "Base"
+                                    ? BasecatRunningSrc
+                                    : flow.name === "Optimism"
+                                    ? OPcatRunningSrc
+                                    : catWaitingSrc; 
                               return (
-                                <TokenParticle
-                                  key={`txp-${p.id}-${p.start}`}
-                                  path={path}
-                                  delay={txDelay}
-                                  color={p.color}
-                                  duration={6}
-                                  size={p.size}
-                                />
+                                <image
+                                  key={`cat-${p.id}-${p.start}`}
+                                  href={catSrc}
+                                  x={0}
+                                  y={0}
+                                  width={p.size * 4.8}
+                                  height={p.size * 3.2}
+                                  preserveAspectRatio="xMidYMid meet"
+                                  style={{
+                                    transform: `translate(${-p.size * 1.2}px, ${-p.size * 1.1}px)`,
+                                  }}
+                                >
+                                  <animateMotion
+                                    dur={`${6}s`}
+                                    repeatCount="indefinite"
+                                    path={path}
+                                    rotate="auto"
+                                    begin={`${txDelay}s`}
+                                  />
+                                </image>
                               );
                             })}
                         {flow.name === "Base" ? (
@@ -550,21 +563,21 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             height={indicatorSize}
                             rx={5}
                             fill={flow.color}
-                            opacity={matchesSelection ? 1 : 0.6}
+                            opacity={matchesSelection(flow) ? 1 : 0.6}
                           />
                         )}
                         <text
                           x={labelX}
                           y={labelY}
-                          fill={matchesSelection ? "#f8fafc" : "#e5e7eb"}
+                          fill={matchesSelection(flow) ? "#f8fafc" : "#e5e7eb"}
                           fontSize={12}
-                          fontWeight={matchesSelection ? 700 : 600}
+                          fontWeight={matchesSelection(flow) ? 700 : 600}
                           dominantBaseline="middle"
                         >
                           {flow.name}
                           <tspan
                             dx={8}
-                            fill={matchesSelection ? "#e0e7ff" : "#cbd5f5"}
+                            fill={matchesSelection(flow) ? "#e0e7ff" : "#cbd5f5"}
                             fontSize={10}
                             fontWeight={400}
                           >

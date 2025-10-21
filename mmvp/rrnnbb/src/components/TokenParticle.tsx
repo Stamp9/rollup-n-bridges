@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 
 interface TokenParticleProps {
   path: string;     // SVG path string
+  pathId?: string;  // Optional <path> id for <mpath> compatibility (e.g. Safari)
   delay?: number;
   color?: string;
   duration?: number;
@@ -10,6 +11,7 @@ interface TokenParticleProps {
 
 export const TokenParticle: React.FC<TokenParticleProps> = ({
   path,
+  pathId,
   delay = 0,
   color = "#ffb703",
   duration = 6,
@@ -24,7 +26,9 @@ export const TokenParticle: React.FC<TokenParticleProps> = ({
       animate={{ pathLength }}
       transition={{ duration, delay, repeat: Infinity, ease: "linear" }}
     >
-      <animateMotion dur={`${duration}s`} repeatCount="indefinite" path={path} rotate="auto" begin={`${delay}s`} />
+      <animateMotion dur={`${duration}s`} repeatCount="indefinite" path={path} rotate="auto" begin={`${delay}s`}>
+        {pathId ? <mpath xlinkHref={`#${pathId}`} /> : null}
+      </animateMotion>
     </motion.circle>
   );
 };

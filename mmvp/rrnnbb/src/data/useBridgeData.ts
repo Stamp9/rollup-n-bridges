@@ -169,8 +169,16 @@ export const useBridgeData = (
       }
       setState(prev => {
         const mergedTxs = [...prev.transactions, ...response.transactions];
+        const txMap = new Map<string, BridgeTx>();
+        mergedTxs.forEach(tx => {
+          const existing = txMap.get(tx.id);
+          if (!existing || (tx.timestamp ?? 0) >= (existing.timestamp ?? 0)) {
+            txMap.set(tx.id, tx);
+          }
+        });
+        const dedupedTxs = Array.from(txMap.values()).sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0));
         const cutoff = Date.now() - historyWindowMs;
-        const filteredTxs = mergedTxs.filter(tx => tx.timestamp >= cutoff);
+        const filteredTxs = dedupedTxs.filter(tx => tx.timestamp >= cutoff);
         const { links, layer2Flows } = buildAggregatedData(filteredTxs, historyWindowMs);
         return {
           blockNumber: response.blockNumber,

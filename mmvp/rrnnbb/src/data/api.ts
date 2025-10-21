@@ -15,14 +15,37 @@ export interface BridgeApiResponse {
   transactions: BridgeTx[];
 }
 
-// Placeholder REST base (unused now that we read via GraphQL)
-const API_BASE = "http://localhost:8000";
+type EnvRecord = Record<string, string | undefined>;
+
+const getProcessEnv = (): EnvRecord => {
+  if (typeof globalThis !== "object") {
+    return {};
+  }
+  const possibleProcess = (globalThis as { process?: { env?: EnvRecord } }).process;
+  return possibleProcess?.env ?? {};
+};
+
+const maybeProcessEnv = getProcessEnv();
+
+const getMetaEnv = (): EnvRecord => {
+  const meta = (import.meta as ImportMeta | undefined)?.env;
+  return (meta as EnvRecord) ?? {};
+};
+
+const metaEnv = getMetaEnv();
 
 // GraphQL configuration (matches src/data/graphql.js)
-const GRAPHQL_URL = (typeof process !== 'undefined' && process.env?.GRAPHQL_URL) || 'http://localhost:8080/v1/graphql';
-const HASURA_ADMIN_SECRET = (typeof process !== 'undefined' && process.env?.HASURA_ADMIN_SECRET) || 'testing';
+const GRAPHQL_URL =
+  metaEnv?.VITE_GRAPHQL_URL ??
+  maybeProcessEnv?.GRAPHQL_URL ??
+  "http://localhost:8080/v1/graphql";
 
-const fetchGraphQL = async (query: string, variables: Record<string, unknown>) => {
+const HASURA_ADMIN_SECRET =
+  metaEnv?.VITE_HASURA_ADMIN_SECRET ??
+  maybeProcessEnv?.HASURA_ADMIN_SECRET ??
+  "testing";
+
+const fetchGraphQL = async <TData>(query: string, variables: Record<string, unknown>): Promise<TData> => {
   const res = await fetch(GRAPHQL_URL, {
     method: 'POST',
     headers: {
@@ -39,7 +62,7 @@ const fetchGraphQL = async (query: string, variables: Record<string, unknown>) =
   if (json.errors) {
     throw new Error(`GraphQL errors: ${JSON.stringify(json.errors)}`);
   }
-  return json.data as any;
+  return json.data as TData;
 };
 
 // Not strictly required for the plan; keeping a lightweight fallback
@@ -53,7 +76,7 @@ export const fetchLatestBlockNumber = async (): Promise<number> => {
     }
   `;
   try {
-    const data = await fetchGraphQL(query, {});
+    const data = await fetchGraphQL<{ chain_metadata: { block_height: number }[] }>(query, {});
     return data?.chain_metadata?.[0]?.block_height ?? 0;
   } catch {
     // Fallback for environments without the indexer running
@@ -94,7 +117,13 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
     }
   `;
 
-  const data = await fetchGraphQL(query, { fromBlock: String(fromBlock) });
+  interface DepositsSinceResult {
+    native: NativeRow[];
+    erc20: Erc20Row[];
+    chain_metadata: { block_height: number }[];
+  }
+
+  const data = await fetchGraphQL<DepositsSinceResult>(query, { fromBlock: String(fromBlock) });
 
   type NativeRow = {
     id: string;
@@ -151,9 +180,10 @@ export const fetchBridgeTxsSince = async (fromBlock: number): Promise<BridgeApiR
 
   const txs = [...nativeTxs, ...erc20Txs].sort((a, b) => a.blockNumber - b.blockNumber);
   const latestBlock = txs.length > 0 ? txs[txs.length - 1].blockNumber : fromBlock;
+  const bridgeBlock = data?.chain_metadata?.[0]?.block_height ?? latestBlock;
 
   return {
-    blockNumber: data?.chain_metadata?.[0].block_height,
+    blockNumber: bridgeBlock,
     chainID: 10,
     transactions: txs,
   };
