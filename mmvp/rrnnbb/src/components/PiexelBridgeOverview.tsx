@@ -294,11 +294,17 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   const [, setTick] = useState(0);
   const getFlowKey = (bridgeId: string, destination: string) => `${bridgeId}::${destination}`;
 
-  const TX_DURATION_MS = 6_000;
+  const TX_DURATION_MS = 8_000;
   const TICK_MS = 300;
   const MAX_ACTIVE = 24;
   const MAX_ENQUEUE_PER_TICK = 8;
   // const catDurationSeconds = TX_DURATION_MS / 1_000;
+
+  useEffect(() => {
+  queuesRef.current.clear();
+  console.log("[🐾 queuesRef cleared due to flows update]");
+}, [flows]);
+
   useEffect(() => {
     let cancelled = false;
     const timer = window.setInterval(() => {
@@ -321,30 +327,22 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
           const tickSeen = new Map<string, number>();
           // Enqueue a few unseen txs per tick
           const newTxs = (flow.transactions ?? [])
-            .filter(tx => {
-              const lastSeen = processed.get(tx.id) ?? 0;
-              const timestamp = tx.timestamp ?? 0;
-              if (timestamp <= lastSeen) {
-                return false;
-              }
-              const seenThisTick = tickSeen.get(tx.id) ?? 0;
-              if (timestamp <= seenThisTick) {
-                return false;
-              }
-              tickSeen.set(tx.id, timestamp);
-              return true;
-            })
-            .slice(0, MAX_ENQUEUE_PER_TICK);
-          if (newTxs.length > 0) {
-            newTxs.forEach(tx => {
-              const color = destinationColorMap.get(flow.name) ?? fallbackDestinationColor;
-              const size = Math.max(5, Math.min(12, 5 + Math.log10(1 + Math.max(0, tx.amount))));
-              const timestamp = tx.timestamp ?? now;
-              actives.push({ id: tx.id, token: tx.token, amount: tx.amount, color, size, start: now, timestamp });
-              processed.set(tx.id, timestamp);
-            });
-            changed = true;
-          }
+    .filter(tx => !processed.has(tx.id)) // 过滤已处理
+    .slice(0, MAX_ENQUEUE_PER_TICK);
+
+  if (newTxs.length > 0) {
+    newTxs.forEach(tx => {
+      const color = destinationColorMap.get(flow.name) ?? fallbackDestinationColor;
+      const size = Math.max(5, Math.min(12, 5 + Math.log10(1 + Math.max(0, tx.amount))));
+      const timestamp = now; // 没有 timestamp，就用当前时间
+      actives.push({ id: tx.id, token: tx.token, amount: tx.amount, color, size, start: now, timestamp });
+
+      // ✅ 记为已处理
+      processed.set(tx.id, timestamp);
+    });
+    changed = true;
+  }
+
 
           // Prune expired
           const filtered = actives.filter(p => {
@@ -522,21 +520,28 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                                     : flow.name === "Optimism"
                                     ? OPcatRunningSrc
                                     : catWaitingSrc; 
+
+                              const minSize = 6;   // catsize
+                              const maxSize = 12;  
+                              const baseScale = Math.log10(Math.max(1, p.amount + 1)); 
+                              const normalized = Math.min(1, baseScale / 6); 
+                              const catSize = minSize + (maxSize - minSize) * normalized;
+
                               return (
                                 <image
                                   key={`cat-${p.id}-${p.start}`}
                                   href={catSrc}
                                   x={0}
                                   y={0}
-                                  width={p.size * 4.8}
-                                  height={p.size * 3.2}
+                                  width={catSize * 4.8}
+                                  height={catSize * 3.2}
                                   preserveAspectRatio="xMidYMid meet"
                                   style={{
                                     transform: `translate(${-p.size * 1.2}px, ${-p.size * 1.1}px)`,
                                   }}
                                 >
                                   <animateMotion
-                                    dur={`${6}s`}
+                                    dur={`${TX_DURATION_MS / 1000}s`}
                                     repeatCount="indefinite"
                                     path={path}
                                     rotate="auto"
