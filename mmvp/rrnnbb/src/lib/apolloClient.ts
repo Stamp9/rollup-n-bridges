@@ -3,7 +3,7 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 
-const HTTP_URL =   "https://localhost:8080/v1/graphql";
+const HTTP_URL =   "http://localhost:8080/v1/graphql";
 const WS_URL =  "ws://localhost:8080/v1/graphql";
 const ADMIN_SECRET = "testing";
 

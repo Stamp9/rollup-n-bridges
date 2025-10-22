@@ -107,7 +107,7 @@ export const RelayL2LiveCounter: React.FC = () => {
         backgroundRepeat: "no-repeat",
         // border: "2px solid #fff",
         color: "#2b2b2b",
-        zIndex: 9999,
+        zIndex: 999,
         fontSize: "12px",
         justifyContent: "center",
         padding: "24px 28px 18px 28px",
