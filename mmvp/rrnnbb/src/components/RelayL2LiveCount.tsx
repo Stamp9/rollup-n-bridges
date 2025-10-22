@@ -8,7 +8,7 @@ import { RELAY_NATIVE_SUBSCRIPTION } from "../data/subscriptions";
 import BaseIcon from "../assets/livecounter_chains/base.png";
 import OptimismIcon from "../assets/livecounter_chains/op.png";
 import ArbitrumIcon from "../assets/livecounter_chains/arb.png";
-import  EthIcon from "../assets/livecounter_chains/eth.png";
+import EthIcon from "../assets/livecounter_chains/eth.png";
 import Board from "../assets/livecounter_chains/pixelboard.png";
 import { data } from "framer-motion/client";
 
@@ -44,10 +44,10 @@ export const RelayL2LiveCounter: React.FC = () => {
     RELAY_NATIVE_SUBSCRIPTION
   );
 
-    useEffect(() => {
-  if (data) console.log("[🔔 New Subscription Data]", data);
-}, [data]);
-  
+  useEffect(() => {
+    if (data) console.log("[🔔 New Subscription Data]", data);
+  }, [data]);
+
 
 
 
@@ -89,8 +89,8 @@ export const RelayL2LiveCounter: React.FC = () => {
       txs.forEach(handleTx);
     }
   }, [nativeData]);
- 
-  
+
+
 
   return (
     <div
@@ -138,7 +138,7 @@ export const RelayL2LiveCounter: React.FC = () => {
         ))
       }
 
-      
+
     </div>
   );
 };

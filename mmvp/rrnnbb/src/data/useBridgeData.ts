@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { BridgeTx } from "./api";
-import { fetchBridgeTxsSince, mapTxToVolume } from "./api";
+import { fetchBridgeTxsSince, fetchBlockHeights, mapTxToVolume } from "./api";
 import { layer2Destinations } from "./model";
-import { initialLatestBlockNumber } from "./bootstrap";
+import { initialBlockHeights } from "./bootstrap";
 import type { Layer2Flow, Link, TokenFlow } from "./model";
 
 export const DEFAULT_HISTORY_WINDOW_MS = 60_000;
@@ -24,7 +24,7 @@ const destinationColors = new Map<string, string>(
 );
 
 interface BridgeDataState {
-  blockNumber: number;
+  blockNumbers: any;
   links: Link[];
   layer2Flows: Layer2Flow[];
   transactions: BridgeTx[];
@@ -149,95 +149,67 @@ export const useBridgeData = (
   intervalMs: number = 10_000,
   historyWindowMs: number = DEFAULT_HISTORY_WINDOW_MS,
 ) => {
-  const SESSION_KEY = "op-tip-block";
   const [state, setState] = useState<BridgeDataState>(() => {
-    let startBlock = initialLatestBlockNumber;
-    try {
-      const cached = Number.parseInt(
-        sessionStorage.getItem(SESSION_KEY) ?? "",
-        10,
-      );
-      startBlock =
-        Number.isFinite(cached) && cached > 0
-          ? cached
-          : initialLatestBlockNumber;
-    } catch {
-      // Ignore sessionStorage errors; use pre-fetched initialLatestBlockNumber
-    }
+    const res = initialBlockHeights;
     return {
-      blockNumber: startBlock,
+      blockNumbers: res,
       links: [],
       layer2Flows: [],
       transactions: [],
     };
   });
 
-  const blockRef = useRef(state.blockNumber);
-
-  useEffect(() => {
-    blockRef.current = state.blockNumber;
-  }, [state.blockNumber]);
 
   useEffect(() => {
     let cancelled = false;
     let timerId: number | undefined;
 
-    const fetchAndUpdate = async () => {
-      const response = await fetchBridgeTxsSince(23627835, 142737000, 37141700);
-      if (cancelled) {
-        return;
-      }
-      setState((prev) => {
-        const mergedTxs = [...prev.transactions, ...response.transactions];
-        const txMap = new Map<string, BridgeTx>();
-        mergedTxs.forEach((tx) => {
-          const existing = txMap.get(tx.id);
-          if (!existing || (tx.timestamp ?? 0) >= (existing.timestamp ?? 0)) {
-            txMap.set(tx.id, tx);
-          }
-        });
-        const dedupedTxs = Array.from(txMap.values()).sort(
-          (a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0),
-        );
-        const cutoff = Date.now() - historyWindowMs;
-        const filteredTxs = dedupedTxs.filter((tx) => tx.timestamp >= cutoff);
-        const { links, layer2Flows } = buildAggregatedData(
-          filteredTxs,
-          historyWindowMs,
-        );
-        return {
-          blockNumber: response.blockNumber,
-          links,
-          layer2Flows,
-          transactions: filteredTxs,
-        };
-      });
-      blockRef.current = response.blockNumber;
-      try {
-        sessionStorage.setItem(SESSION_KEY, String(response.blockNumber));
-      } catch {
-        // ignore storage errors
-      }
-    };
+    //    const fetchAndUpdate = async () => {
+    //      const res = await fetchBlockHeights();
+    //      const fromBlockEth = 23627835;
+    //      const fromBlockOp = 142737000;
+    //      const fromBlockBase = 37141700;
+    //
+    //      const response = await fetchBridgeTxsSince(
+    //        state.blockNumbers.fromBlockEth,
+    //        state.blockNumbers.fromBlockOP,
+    //        state.blockNumbers.fromBlockBase
+    //      );
+    //      if (cancelled) {
+    //        return;
+    //      }
+    //      setState((prev) => {
+    //        const mergedTxs = [...prev.transactions, ...response.transactions];
+    //        const txMap = new Map<string, BridgeTx>();
+    //        mergedTxs.forEach((tx) => {
+    //          const existing = txMap.get(tx.id);
+    //          if (!existing || (tx.timestamp ?? 0) >= (existing.timestamp ?? 0)) {
+    //            txMap.set(tx.id, tx);
+    //          }
+    //        });
+    //        const dedupedTxs = Array.from(txMap.values()).sort(
+    //          (a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0),
+    //        );
+    //        const cutoff = Date.now() - historyWindowMs;
+    //        const filteredTxs = dedupedTxs.filter((tx) => tx.timestamp >= cutoff);
+    //        const { links, layer2Flows } = buildAggregatedData(
+    //          filteredTxs,
+    //          historyWindowMs,
+    //        );
+    //        return {
+    //          blockNumbers: { ...prev.blockNumbers, ...res },
+    //          links,
+    //          layer2Flows,
+    //          transactions: filteredTxs,
+    //        };
+    //      });
+    //    };
 
     const initialise = async () => {
-      const cached = Number.parseInt(
-        sessionStorage.getItem(SESSION_KEY) ?? "",
-        10,
-      );
-      const startBlock =
-        Number.isFinite(cached) && cached > 0
-          ? cached
-          : initialLatestBlockNumber;
-      if (cancelled) {
-        return;
-      }
-      setState((prev) => ({ ...prev, blockNumber: startBlock }));
-      blockRef.current = startBlock;
-      await fetchAndUpdate();
-      if (!cancelled && intervalMs > 0) {
-        timerId = window.setInterval(fetchAndUpdate, intervalMs);
-      }
+      // await fetchAndUpdate();
+      // if (!cancelled && intervalMs > 0) {
+      //   timerId = window.setInterval(fetchAndUpdate, intervalMs);
+      // }
     };
 
     initialise();

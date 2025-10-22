@@ -10,8 +10,7 @@ export interface BridgeTx {
 }
 
 export interface BridgeApiResponse {
-  blockNumber: number;
-  chainID: number;
+  blockNumbers: any;
   transactions: BridgeTx[];
 }
 
@@ -90,12 +89,60 @@ export const fetchLatestBlockNumber = async (): Promise<number> => {
   }
 };
 
+export const fetchBlockHeights = async (
+): Promise<any> => {
+  // Query both native and ERC20 deposits since a given block (exclusive)
+  const query = `
+    query BlockHeights {
+      chain_metadata(order_by: {chain_id: asc}) {
+        block_height
+        chain_id
+      }
+    }
+  `;
+
+  const data = await fetchGraphQL(query, {});
+
+  let fromBlockEth = 0;
+  let fromBlockOP = 0;
+  let fromBlockBase = 0;
+  data?.chain_metadata.forEach(md => {
+    if (md.chain_id === 1) {
+      fromBlockEth = md.block_height;
+    } else if (md.chain_id === 10) {
+      fromBlockOP = md.block_height;
+    } else if (md.chain_id === 8453) {
+      fromBlockBase = md.block_height;
+    }
+  });
+
+  return {
+    fromBlockEth,
+    fromBlockOP,
+    fromBlockBase,
+  };
+}
+
+export const subscribeBridgeTxsSync = async (fromBlockOP: number): Promise<any> => {
+  const query = `
+    subscription {
+      native: RelayDepository_RelayNativeDeposit(limit: 10, order_by: {block_number: desc}, where: {block_number: {_gt: $fromBlockOP}}) {
+        id
+        chain_id
+        block_number
+        from
+        amount
+      }
+    }
+`;
+}
+
 export const fetchBridgeTxsSince = async (
   fromBlockEth: number,
   fromBlockOP: number,
   fromBlockBase: number,
 ): Promise<BridgeApiResponse> => {
-  console.log("fetching with height ", fromBlockEth);
+  // console.log(`fetching with heights\n${fromBlockEth}\n${fromBlockOP}\n${fromBlockBase}\n`);
   // Query both native and ERC20 deposits since a given block (exclusive)
   const query = `
     query DepositsSince($fromBlockEth: Int!, $fromBlockOP: Int!, $fromBlockBase: Int!) {
@@ -131,7 +178,7 @@ export const fetchBridgeTxsSince = async (
         amount
         token
       }
-      chain_metadata {
+      chain_metadata(order_by: { chain_id: asc }) {
         block_height
       }
     }
@@ -206,10 +253,24 @@ export const fetchBridgeTxsSince = async (
   const latestBlock =
     txs.length > 0 ? txs[txs.length - 1].blockNumber : fromBlock;
   const bridgeBlock = data?.chain_metadata?.[0]?.block_height ?? latestBlock;
+  data?.chain_metadata.forEach(md => {
+    if (md.chain_id === 1) {
+      fromBlockEth = md.block_height;
+    } else if (md.chain_id === 10) {
+      fromBlockOP = md.block_height;
+    } else if (md.chain_id === 8453) {
+      fromBlockBase = md.block_height;
+    }
+  });
+
+
 
   return {
-    blockNumber: bridgeBlock,
-    chainID: 10,
+    blockNumbers: {
+      fromBlockEth,
+      fromBlockOP,
+      fromBlockBase,
+    },
     transactions: txs,
   };
 };

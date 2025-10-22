@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { useSubscription } from "@apollo/client/react";
 import islandSrc from "../assets/ethereum.png";
 import temBgSrc from "../assets/bg.png";
 import catWaitingSrc from "../assets/cat_wating.png";
@@ -12,7 +13,9 @@ import type { Layer2Flow, Link } from "../data/model";
 import { layer2Destinations, tokenColors } from "../data/model";
 import type { BridgeTx } from "../data/api";
 import { RelayL2LiveCounter } from "./RelayL2LiveCount";
-import { TxCount24hPanel } from "./TxCount24hPanel";
++import { TxCount24hPanel } from "./TxCount24hPanel";
+import { fetchBlockHeights } from "../data/api";
+import { gql } from "@apollo/client";
 
 const TX_DURATION_MS = 7_000;
 
@@ -22,6 +25,8 @@ interface PiexelBridgeOverviewProps {
   detailsOpen: boolean;
   onCloseDetails: () => void;
 }
+
+
 
 const formatMillions = (value: number) => `${(value / 1_000_000).toFixed(2)}M`;
 const formatLatency = (value: number | undefined) =>
@@ -171,8 +176,54 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   detailsOpen,
   onCloseDetails,
 }) => {
+
   const [selectedProtocolId, setSelectedProtocolId] = useState<string>("All");
   const [selectedDestination, setSelectedDestination] = useState<string>("All");
+  // Track the starting block for OP and cache to avoid re-querying
+  const [fromBlockOP, setFromBlockOP] = useState<number | null>(null);
+
+  // Initialise fromBlockOP from cache or latest OP block height
+  useEffect(() => {
+    let cancelled = false;
+    const key = "relay:fromBlockOP";
+
+    (async () => {
+      try {
+        const heights = await fetchBlockHeights();
+        if (cancelled) return;
+        const opHeight = Number(heights?.fromBlockOP ?? 0) || 0;
+        setFromBlockOP(opHeight);
+        window.localStorage.setItem(key, String(opHeight));
+      } catch {
+        // Fallback to a safe default if metadata is unavailable
+        const fallback = 0;
+        setFromBlockOP(fallback);
+        window.localStorage.setItem(key, String(fallback));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+
+  const data = useSubscription(
+    gql`
+    subscription Yo {
+      native: RelayDepository_RelayNativeDeposit(limit: 1) {
+        id
+        chain_id
+        block_number
+        from
+        amount
+      }
+    }`);
+
+  useEffect(() => {
+    if (data) console.log("[🔔 New Incoming Cat]", data);
+  }, [data]);
+
+
   // Keep a map of
   // < Base:
   //     active: <0: cats0, 1: cats1, 2: cats2>
@@ -180,6 +231,8 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   //
   const [baseState, setBaseState] = useState<BridgeState>();
   const [opState, setOpState] = useState<BridgeState>();
+  // Queue new Optimism txs from the subscription to animate
+  const opPendingRef = useRef<Array<{ id: string; amount: number; token: string }>>([]);
 
   const destinationColorMap = useMemo(() => {
     const map = new Map(baseDestinationColorMap);
@@ -476,8 +529,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
       bridgeSummaries.forEach((summary) => {
         summary.flows.forEach((flow) => {
           const key = getFlowKey(flow.bridgeId, flow.name);
-
-          if (key !== "Relay::Base") {
+          if (key !== "Relay::Base" && key !== "Relay::Optimism") {
             return;
           }
           // console.log(key);
@@ -513,16 +565,25 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
           state.next_idx = (state.next_idx + 1) % NUM_BATCHES;
           const cats = state.cats[curr_idx];
 
-          if (flow.transactions.length > 0) {
-            var new_cats = new Array();
-            flow.transactions.forEach((tx) => {
+          // Select incoming txs for this flow
+          let incomingTxs: any[] = [];
+          if (key === "Relay::Base") {
+            incomingTxs = flow.transactions ?? [];
+          } else if (key === "Relay::Optimism") {
+            incomingTxs = opPendingRef.current ?? [];
+            opPendingRef.current = [];
+          }
+
+          if (incomingTxs.length > 0) {
+            var new_cats: ActiveParticle[] = [];
+            incomingTxs.forEach((tx) => {
               const color =
                 destinationColorMap.get(flow.name) ?? fallbackDestinationColor;
               const size = Math.max(
                 5,
                 Math.min(12, 5 + Math.log10(1 + Math.max(0, tx.amount))),
               );
-              const timestamp = now; 
+              const timestamp = now;
 
               // Assign a discrete random lane within a wide band
               const laneStep =
@@ -552,8 +613,6 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
             });
 
             // console.log(curr_idx);
-            console.log(new_cats);
-            const cats = new_cats;
             state.cats[curr_idx] = new_cats;
             changed = true;
           }
@@ -574,7 +633,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
 
       <RelayL2LiveCounter />
 
-      
+
 
       <header
         style={{
@@ -758,7 +817,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                       .join("\n")}
                   </title>
                   <>
-                  
+
                     {/* <rect
                       x={containerX}
                       y={containerY}
@@ -787,18 +846,23 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                           }}
                           style={{ cursor: "pointer" }}
                         >
-                          {baseState != undefined &&
-                            baseState.cats.map((ap) => {
+                          {(() => {
+                            const stateForFlow =
+                              flow.name === "Base"
+                                ? baseState
+                                : flow.name === "Optimism"
+                                  ? opState
+                                  : undefined;
+                            if (!stateForFlow) return null;
+                            return stateForFlow.cats.map((ap) => {
                               return ap.map((p, i) => {
                                 const txDelay = delay + 0.15 * i;
-                                // console.log(txDelay);
-
                                 const laneOffset = p.laneOffset ?? 0;
                                 const lanePath = `M${islandNode.x + nx * laneOffset},${islandNode.y + ny * laneOffset} L${endX + nx * laneOffset},${endY + ny * laneOffset}`;
-
                                 return renderCat(p, flow, txDelay, lanePath);
                               });
-                            })}
+                            });
+                          })()}
                           {/* {flow.name === "Base" ? (
                             <image
                               href={catWaitingSrc}
@@ -833,8 +897,8 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             fontWeight={matchesSelection(flow) ? 700 : 600}
                             dominantBaseline="middle"
                           > */}
-                            {flow.name}
-                            {/* <tspan
+                          {flow.name}
+                          {/* <tspan
                               dx={8}
                               fill={
                                 matchesSelection(flow) ? "#e0e7ff" : "#cbd5f5"
@@ -847,7 +911,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                           {/* </text> */}
                         </g>
                       );
-                    })} 
+                    })}
                   </>
                 </g>
               );
