@@ -761,7 +761,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                       fill={containerFill}
                       stroke={containerStroke}
                       strokeWidth={1.2}
-                    />
+                    /> */}
                     {visibleFlows.map((flow, flowIndex) => {
                       const delay = bridgeIndex * 0.6 + flowIndex * 0.8;
                       const size = Math.min(12, 2 + flow.volumeUsd / 2_000_000);
@@ -792,7 +792,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                                 return renderCat(p, flow, txDelay, lanePath);
                               });
                             })}
-                          {flow.name === "Base" ? (
+                          {/* {flow.name === "Base" ? (
                             <image
                               href={catWaitingSrc}
                               x={indicatorX}
@@ -815,8 +815,8 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                               fill={flow.color}
                               opacity={matchesSelection(flow) ? 1 : 0.6}
                             />
-                          )}
-                          <text
+                          )} */}
+                          {/* <text
                             x={labelX}
                             y={labelY}
                             fill={
@@ -825,9 +825,9 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             fontSize={12}
                             fontWeight={matchesSelection(flow) ? 700 : 600}
                             dominantBaseline="middle"
-                          >
+                          > */}
                             {flow.name}
-                            <tspan
+                            {/* <tspan
                               dx={8}
                               fill={
                                 matchesSelection(flow) ? "#e0e7ff" : "#cbd5f5"
@@ -836,11 +836,11 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                               fontWeight={400}
                             >
                               {`${(flow.volumeUsd / 1_000_000).toFixed(1)}M • ${flow.txPerMinute} tx/min`}
-                            </tspan>
-                          </text>
+                            </tspan> */}
+                          {/* </text> */}
                         </g>
                       );
-                    })} */}
+                    })} 
                   </>
                 </g>
               );
