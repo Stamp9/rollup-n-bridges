@@ -100,6 +100,31 @@ let registerContractHandlers = (
           sources: NetworkSources.evm(~chain, ~contracts=[{name: "RelayDepository",events: [Types.RelayDepository.RelayErc20Deposit.register(), Types.RelayDepository.RelayNativeDeposit.register()],abi: Types.RelayDepository.abi}], ~hyperSync=Some("https://8453.hypersync.xyz"), ~allEventSignatures=[Types.RelayDepository.eventSignatures]->Belt.Array.concatMany, ~shouldUseHypersyncClientDecoder=true, ~rpcs=[], ~lowercaseAddresses=false)
         }
       },
+      {
+        let contracts = [
+          {
+            InternalConfig.name: "RelayDepository",
+            abi: Types.RelayDepository.abi,
+            addresses: [
+              "0x4cD00E387622C35bDDB9b4c962C136462338BC31"->Address.Evm.fromStringOrThrow
+,
+            ],
+            events: [
+              (Types.RelayDepository.RelayErc20Deposit.register() :> Internal.eventConfig),
+              (Types.RelayDepository.RelayNativeDeposit.register() :> Internal.eventConfig),
+            ],
+            startBlock: None,
+          },
+        ]
+        let chain = ChainMap.Chain.makeUnsafe(~chainId=42161)
+        {
+          InternalConfig.confirmedBlockThreshold: 0,
+          startBlock: 0,
+          id: 42161,
+          contracts,
+          sources: NetworkSources.evm(~chain, ~contracts=[{name: "RelayDepository",events: [Types.RelayDepository.RelayErc20Deposit.register(), Types.RelayDepository.RelayNativeDeposit.register()],abi: Types.RelayDepository.abi}], ~hyperSync=Some("https://42161.hypersync.xyz"), ~allEventSignatures=[Types.RelayDepository.eventSignatures]->Belt.Array.concatMany, ~shouldUseHypersyncClientDecoder=true, ~rpcs=[], ~lowercaseAddresses=false)
+        }
+      },
     ]
 
     Config.make(

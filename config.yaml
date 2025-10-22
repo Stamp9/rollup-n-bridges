@@ -25,3 +25,9 @@ networks:
   contracts:
   - name: RelayDepository
     address: 0x4cD00E387622C35bDDB9b4c962C136462338BC31
+
+- id: 42161 # Arbitrum
+  start_block: 0
+  contracts:
+  - name: RelayDepository
+    address: 0x4cD00E387622C35bDDB9b4c962C136462338BC31
