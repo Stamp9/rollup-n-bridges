@@ -8,10 +8,10 @@ import BasecatRunningSrc from "../assets/cattie1.gif";
 import relayNodeSrc from "../assets/relay.png";
 
 import { NodeCircle } from "./NodeCircle";
-import { TokenParticle } from "./TokenParticle";
 import type { Layer2Flow, Link } from "../data/model";
 import { layer2Destinations, tokenColors } from "../data/model";
 import type { BridgeTx } from "../data/api";
+import { RelayL2LiveCounter } from "./RelayL2LiveCount";
 
 const TX_DURATION_MS = 7_000;
 
@@ -41,16 +41,16 @@ const bridgeProtocols = [
     hue: "#38bdf8",
     node: { id: "Relay", type: "Bridge" as const, x: 540, y: 320 },
   },
-  {
-    name: "Across",
-    hue: "#a855f7",
-    node: { id: "Across", type: "Bridge" as const, x: 540, y: 120 },
-  },
-  {
-    name: "Mayan",
-    hue: "#f97316",
-    node: { id: "Mayan", type: "Bridge" as const, x: 540, y: 500 },
-  },
+  // {
+  //   name: "Across",
+  //   hue: "#a855f7",
+  //   node: { id: "Across", type: "Bridge" as const, x: 540, y: 120 },
+  // },
+  // {
+  //   name: "Mayan",
+  //   hue: "#f97316",
+  //   node: { id: "Mayan", type: "Bridge" as const, x: 540, y: 500 },
+  // },
 ] as const;
 
 const svgWidth = 900;
@@ -521,7 +521,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                 5,
                 Math.min(12, 5 + Math.log10(1 + Math.max(0, tx.amount))),
               );
-              const timestamp = now; // 没有 timestamp，就用当前时间
+              const timestamp = now; 
 
               // Assign a discrete random lane within a wide band
               const laneStep =
@@ -567,25 +567,36 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   return (
     <>
 
-      {/* <RelayL2LiveCounter /> */}
+      <RelayL2LiveCounter />
 
-      <h1
+      <header
         style={{
           position: "absolute",
-          top: "3%",
-          left: "15%",
+          top: "2%",
+          left: "20%",
           transform: "translateX(-50%)",
-          fontFamily: "'Press Start 2P', cursive",
-          fontSize: "20px",
-          color: "#f8fafc",
-          textShadow: "2px 2px 0 #38bdf8, 4px 4px 0 #1e3a8a",
-          letterSpacing: "2px",
-          zIndex: 20,
-          textAlign: "center",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 30,
+          pointerEvents: "none", // prevents blocking clicks below
         }}
       >
-        Envio Gato
-      </h1>
+        <h1
+          style={{
+            fontFamily: "'Press Start 2P', cursive",
+            fontSize: "20px",
+            color: "#f8fafc",
+            textShadow: "2px 2px 0 #38bdf8, 4px 4px 0 #1e3a8a",
+            letterSpacing: "2px",
+            textAlign: "center",
+          }}
+        >
+          Envio Gato
+        </h1>
+      </header>
+
 
 
 
@@ -740,7 +751,8 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                       .join("\n")}
                   </title>
                   <>
-                    <rect
+                  
+                    {/* <rect
                       x={containerX}
                       y={containerY}
                       width={containerWidth}
@@ -828,7 +840,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                           </text>
                         </g>
                       );
-                    })}
+                    })} */}
                   </>
                 </g>
               );
