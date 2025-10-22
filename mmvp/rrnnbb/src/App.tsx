@@ -164,7 +164,7 @@ export default function App() {
           padding: "1.5rem 1rem 0.5rem",
         }}
       >
-        <div style={{ display: "flex", gap: "0.75rem" }}>
+        {/* <div style={{ display: "flex", gap: "0.75rem" }}>
           <button
             type="button"
             onClick={() => setPage("piexel")}
@@ -185,7 +185,7 @@ export default function App() {
           >
             Piexel Bridge Overview
           </button>
-        </div>
+        </div> */}
         <div
           style={{
             display: "flex",
@@ -197,37 +197,28 @@ export default function App() {
             fontSize: "0.85rem",
           }}
         >
-          <span>
-            Block #{blockNumber.toLocaleString()} · Bridge volume last tick{" "}
-            {formatMillions(bridgeTotalVolume)}
-          </span>
-          {page !== "network" && (
-            <button
-              type="button"
-              onClick={() => setBridgeDetailsOpen((prev) => !prev)}
-              style={{
-                padding: "0.45rem 1.15rem",
-                borderRadius: "9999px",
-                border: "1px solid",
-                borderColor: bridgeDetailsOpen
-                  ? "#22c55e"
-                  : "rgba(148, 163, 184, 0.45)",
-                background: bridgeDetailsOpen
-                  ? "rgba(34, 197, 94, 0.18)"
-                  : "rgba(15, 23, 42, 0.55)",
-                color: "#f8fafc",
-                cursor: "pointer",
-                fontSize: "0.78rem",
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                transition: "background 0.2s ease",
-              }}
-            >
-              {bridgeDetailsOpen
-                ? "Hide bridge details"
-                : "Show bridge details"}
-            </button>
-          )}
+          {/* <span>Block #{blockNumber.toLocaleString()} · Bridge volume last tick {formatMillions(bridgeTotalVolume)}</span> */}
+          {/* {page !== "network" && (
+            // <button
+            //   type="button"
+            //   onClick={() => setBridgeDetailsOpen(prev => !prev)}
+            //   style={{
+            //     padding: "0.45rem 1.15rem",
+            //     borderRadius: "9999px",
+            //     border: "1px solid",
+            //     borderColor: bridgeDetailsOpen ? "#22c55e" : "rgba(148, 163, 184, 0.45)",
+            //     background: bridgeDetailsOpen ? "rgba(34, 197, 94, 0.18)" : "rgba(15, 23, 42, 0.55)",
+            //     color: "#f8fafc",
+            //     cursor: "pointer",
+            //     fontSize: "0.78rem",
+            //     letterSpacing: "0.06em",
+            //     textTransform: "uppercase",
+            //     transition: "background 0.2s ease",
+            //   }}
+            // >
+            //   {bridgeDetailsOpen ? "Hide bridge details" : "Show bridge details"}
+            // </button>
+          )} */}
         </div>
         <div
           style={{
@@ -239,17 +230,10 @@ export default function App() {
             alignItems: "center",
           }}
         >
-          <span
-            style={{
-              fontSize: "0.75rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: "#a5b4fc",
-            }}
-          >
+          {/* <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#a5b4fc" }}>
             Protocols
-          </span>
-          {availableProtocols.map((protocol) => {
+          </span> */}
+          {/* {availableProtocols.map(protocol => {
             const enabled = protocolFilters[protocol] ?? true;
             return (
               <button
@@ -277,7 +261,7 @@ export default function App() {
                 {protocol}
               </button>
             );
-          })}
+          })} */}
         </div>
         <div
           style={{
@@ -289,17 +273,7 @@ export default function App() {
             alignItems: "center",
           }}
         >
-          <span
-            style={{
-              fontSize: "0.75rem",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: "#a5b4fc",
-            }}
-          >
-            Destinations
-          </span>
-          {availableDestinations.map((destination) => {
+          {availableDestinations.map(destination => {
             const enabled = destinationFilters[destination] ?? true;
             return (
               <button

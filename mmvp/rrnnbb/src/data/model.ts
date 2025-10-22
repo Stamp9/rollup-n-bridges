@@ -73,8 +73,8 @@ export const tokenMetadata: Record<
 export const nodes: GraphNode[] = [
   { id: "Ethereum", type: "L1", x: 100, y: 300 },
   { id: "Relay", type: "Bridge", x: 360, y: 200 },
-  { id: "Across", type: "Bridge", x: 360, y: 360 },
-  { id: "Mayan", type: "Bridge", x: 360, y: 520 },
+  // { id: "Across", type: "Bridge", x: 360, y: 360 },
+  // { id: "Mayan", type: "Bridge", x: 360, y: 520 },
   { id: "Arbitrum", type: "L2", x: 720, y: 180 },
   { id: "Base", type: "L2", x: 720, y: 300 },
   { id: "Optimism", type: "L2", x: 720, y: 400 },

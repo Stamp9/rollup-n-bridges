@@ -566,8 +566,32 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
   }, [bridgeSummaries, destinationColorMap]);
   return (
     <>
+
+      {/* <RelayL2LiveCounter /> */}
+
+      <h1
+        style={{
+          position: "absolute",
+          top: "3%",
+          left: "15%",
+          transform: "translateX(-50%)",
+          fontFamily: "'Press Start 2P', cursive",
+          fontSize: "20px",
+          color: "#f8fafc",
+          textShadow: "2px 2px 0 #38bdf8, 4px 4px 0 #1e3a8a",
+          letterSpacing: "2px",
+          zIndex: 20,
+          textAlign: "center",
+        }}
+      >
+        Envio Gato
+      </h1>
+
+
+
       <div
         style={{
+          position: "fixed",
           width: "100%",
           margin: 0,
           padding: 0,
