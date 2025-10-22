@@ -16,7 +16,7 @@ export const RELAY_ERC20_TX_SUBSCRIPTION = gql`
 
 export const RELAY_NATIVE_SUBSCRIPTION = gql`
   subscription NativeTx {
-    RelayDepository_RelayNativeDeposit(limit: 1, order_by: { block_number: desc }) {
+    RelayDepository_RelayNativeDeposit(limit: 1) {
       event_id
       chain_id
       from

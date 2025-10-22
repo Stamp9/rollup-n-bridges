@@ -39,9 +39,16 @@ export const RelayL2LiveCounter: React.FC = () => {
   const { data: erc20Data } = useSubscription<RelayErc20Data>(
     RELAY_ERC20_TX_SUBSCRIPTION
   );
+
   const { data: nativeData } = useSubscription<RelayNativeData>(
     RELAY_NATIVE_SUBSCRIPTION
   );
+
+    useEffect(() => {
+  if (data) console.log("[🔔 New Subscription Data]", data);
+}, [data]);
+  
+
 
 
 
@@ -49,39 +56,41 @@ export const RelayL2LiveCounter: React.FC = () => {
     Arbitrum: 0,
     Base: 0,
     Optimism: 0,
-    Scroll: 0,
+    Ethereum: 0,
   });
 
-  const lastEventId = useRef<string | null>(null);
+  const seenEventIds = useRef<Set<string>>(new Set());
 
- 
-  useEffect(() => {
-    const erc20Tx = erc20Data?.RelayDepository_RelayErc20Deposit?.[0];
-    const nativeTx = nativeData?.RelayDepository_RelayNativeDeposit?.[0];
+  const handleTx = (tx: RelayDepositEvent) => {
+    if (!tx || seenEventIds.current.has(tx.event_id)) return;
+    seenEventIds.current.add(tx.event_id);
 
-    const newTx =
-      erc20Tx && nativeTx
-        ? erc20Tx.block_number > nativeTx.block_number
-          ? erc20Tx
-          : nativeTx
-        : erc20Tx || nativeTx;
-
-    if (!newTx) return;
-
-    if (lastEventId.current === newTx.event_id) return;
-    lastEventId.current = newTx.event_id;
-
-    const chain = CHAINS.find((c) => c.id === newTx.chain_id);
+    const chain = CHAINS.find((c) => c.id === tx.chain_id);
     if (!chain) return;
 
-    
-    console.log(newTx, "New TX on", chain.name);
+    console.log(`[Relay Live TX] New tx on ${chain.name}`, tx);
 
     setCounts((prev) => ({
       ...prev,
       [chain.name]: (prev[chain.name] || 0) + 1,
     }));
-  }, [erc20Data, nativeData]);
+  };
+
+  useEffect(() => {
+    const txs = erc20Data?.RelayDepository_RelayErc20Deposit;
+    if (txs && txs.length > 0) {
+      txs.forEach(handleTx);
+    }
+  }, [erc20Data]);
+
+  useEffect(() => {
+    const txs = nativeData?.RelayDepository_RelayNativeDeposit;
+    if (txs && txs.length > 0) {
+      txs.forEach(handleTx);
+    }
+  }, [nativeData]);
+ 
+  
 
   return (
     <div

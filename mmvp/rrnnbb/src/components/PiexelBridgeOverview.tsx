@@ -479,7 +479,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
           if (key !== "Relay::Base") {
             return;
           }
-          console.log(key);
+          // console.log(key);
           var state = undefined;
           if (key === "Relay::Base") {
             state = baseState;
@@ -490,7 +490,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
           if (state === undefined) {
             const bridgeState = { cats: [], next_idx: 0 };
             let i = 0;
-            console.log(bridgeState);
+            // console.log(bridgeState);
             while (i < NUM_BATCHES) {
               bridgeState.cats.push([]);
               i++;
@@ -550,7 +550,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
               });
             });
 
-            console.log(curr_idx);
+            // console.log(curr_idx);
             console.log(new_cats);
             const cats = new_cats;
             state.cats[curr_idx] = new_cats;
@@ -784,7 +784,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
                             baseState.cats.map((ap) => {
                               return ap.map((p, i) => {
                                 const txDelay = delay + 0.15 * i;
-                                console.log(txDelay);
+                                // console.log(txDelay);
 
                                 const laneOffset = p.laneOffset ?? 0;
                                 const lanePath = `M${islandNode.x + nx * laneOffset},${islandNode.y + ny * laneOffset} L${endX + nx * laneOffset},${endY + ny * laneOffset}`;
