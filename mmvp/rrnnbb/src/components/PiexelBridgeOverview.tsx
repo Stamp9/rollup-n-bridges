@@ -13,7 +13,7 @@ import type { Layer2Flow, Link } from "../data/model";
 import { layer2Destinations, tokenColors } from "../data/model";
 import type { BridgeTx } from "../data/api";
 import { RelayL2LiveCounter } from "./RelayL2LiveCount";
-+import { TxCount24hPanel } from "./TxCount24hPanel";
+import { TxCount24hPanel } from "./TxCount24hPanel";
 import { fetchBlockHeights } from "../data/api";
 import { gql } from "@apollo/client";
 
