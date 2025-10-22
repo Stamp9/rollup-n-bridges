@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import islandSrc from "../assets/ethereum.png";
-import temBgSrc from "../assets/tem_bg.png";
+import temBgSrc from "../assets/bg.png";
 import catWaitingSrc from "../assets/cat_wating.png";
 import OPcatRunningSrc from "../assets/cattie2.gif";
 import BasecatRunningSrc from "../assets/cattie1.gif";
@@ -610,7 +610,7 @@ export const PiexelBridgeOverview: React.FC<PiexelBridgeOverviewProps> = ({
           display: "flex",
           justifyContent: "center",
           backgroundImage: `url(${temBgSrc})`,
-          backgroundSize: "cover",
+          backgroundSize: "100% 100%",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
