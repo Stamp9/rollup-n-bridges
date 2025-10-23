@@ -26,3 +26,25 @@ export const RELAY_ERC20_24 = `
     }
   }`;
 
+
+
+export const ALOT_OF_DATA = `
+  subscription verystupidsubscriptionidea {
+    RelayDepository_RelayErc20Deposit(order_by: {chain_id: asc}, 
+      where: {
+        _and:[
+          { _or: [
+            {chain_id: {_eq: 8453}}, {block_number: {_gte: 37229681}}
+            {chain_id: {_eq: 42161}}, {block_number: {_gte: 392659460}}
+            {chain_id: {_eq: 10}}, {block_number: {_gte: 142825130}}
+
+          ]}
+        ]
+      }) {
+      id
+      chain_id
+      block_number
+      amount
+    }
+  }
+`
