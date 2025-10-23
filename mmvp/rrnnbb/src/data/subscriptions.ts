@@ -9,6 +9,7 @@ export const RELAY_ERC20_TX_SUBSCRIPTION = gql`
     id
     block_number
     amount
+    __typename
   }
   
 }`;
@@ -22,5 +23,6 @@ export const RELAY_NATIVE_SUBSCRIPTION = gql`
       id
       block_number
       amount
+      __typename
     }
   }`;
