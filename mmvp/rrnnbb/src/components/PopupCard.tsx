@@ -49,6 +49,9 @@ function formatEtherscanLink(chain_id: any, block_number: any) {
   return `${chainIdToEtherscan[chain_id]}${block_number}`;
 }
 
+const truncateAddress = (address: string): string =>
+  address.length < 10 ? address : `${address.slice(0, 6)}...${address.slice(-4)}`;
+
 
 export const TxPanel: React.FC = ({ cat }) => {
 
@@ -60,84 +63,102 @@ export const TxPanel: React.FC = ({ cat }) => {
       address // Optional
     });
   };
-  return (
 
+
+  return (
     <div
       style={{
         position: "fixed",
         bottom: "5%",
         left: "5%",
         width: 260,
-        minHeight: 300,
+        minHeight: 180,
         backgroundImage: `url(${Board})`,
         backgroundSize: "100% 100%",
-        backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         color: "#2b2b2b",
-        zIndex: 10000,
-        fontSize: 8,
-        padding: "48px 28px 18px 28px",
-        lineHeight: 1.4,
-        display: "inline-block",
-        borderRadius: 8,
         fontFamily: "'Press Start 2P', cursive",
+        fontSize: 9,
+        lineHeight: 1.6,
+        borderRadius: 10,
+        padding: "48px 20px 30px 20px",
+        zIndex: 9999,
         pointerEvents: "auto",
-        marginTop: "-100px",
+        userSelect: "none",
+        textAlign: "left",
+        // Optional helpers
+        // border: "1px dashed red",
       }}
     >
       <div
         style={{
-          display: "grid",
-          rowGap: 6,
-          paddingRight: 8,
-          columnGap: 12,
-          paddingLeft: 24,
-          paddingTop: 24,
+          fontSize: 12,
+          color: "#1e293b",
+          fontWeight: "bold",
+          marginBottom: 10,
+          marginTop: 16,
+          textShadow: "0 1px #fff",
+          letterSpacing: "0.5px",
+          paddingLeft: 60,
         }}
       >
-        {}
+        TX DETAILS
+      </div>
 
-        <hr
-          style={{
-            border: 0,
-            borderTop: "1px solid #cbd5e1",
-            opacity: 0.6,
-            margin: "8px 0",
-          }}
-        />
+      
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            // justifyContent: "space-between",
-            fontWeight: 700,
-          }}
-        >
-          <div
-            style={{
-              paddingBottom: "8px"
-            }}
-          >{`Transaction`}</div>
-          <div>{`${cat.chainName}\n`}</div>
-          {formatTokenAmount(cat)}
-          <span
-            onMouseDown={() => window.open(formatEtherscanLink(cat.chainId, cat.blockNumber), '_blank')}
-          >
-            block number: {cat.blockNumber}
-          </span>
-          <span
-            onMouseDown={() => viewHistory(cat.chainId, cat.from)}
+      <div style={{ margin: "4px 0", color: "#374151",  paddingLeft: 20, }}>
+        Chain: <span style={{ color: "#000" }}>{cat.chainName}</span>
+      </div>
 
-          >
-            from: {cat.from}
-          </span>
+      <div
+        style={{
+          color: "#000",
+          borderRadius: 6,
+          paddingLeft: 20,
+          fontWeight: "bold",
+          display: "block",
+          width: "fit-content",
+        }}
+      >
+        {formatTokenAmount(cat)}
+      </div>
 
-          <span style={{ paddingLeft: "18px" }}>
-          </span>
-        </div>
+      <div
+        onMouseDown={() =>
+          window.open(formatEtherscanLink(cat.chainId, cat.blockNumber), "_blank")
+        }
+        style={{
+          cursor: "pointer",
+          color: "#2563eb",
+          textDecoration: "underline",
+          margin: "6px 0",
+          paddingLeft: 20,
+          transition: "opacity 0.2s",
+        }}
+        onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
+        onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
+      >
+        Block: #{cat.blockNumber}
+      </div>
+
+      <div
+        onMouseDown={() => viewHistory(cat.chainId, cat.from)}
+        style={{
+          cursor: "pointer",
+          color: "#7c3aed",
+          textDecoration: "underline",
+          wordBreak: "break-all",
+          margin: "6px 0",
+          paddingLeft: 20,
+          transition: "opacity 0.2s",
+        }}
+        onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
+        onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
+      >
+        From: {truncateAddress(cat.from)}
       </div>
     </div>
-  );
-}
 
+  );
+};
