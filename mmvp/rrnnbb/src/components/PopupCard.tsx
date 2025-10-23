@@ -10,6 +10,19 @@ import {
 } from "@blockscout/app-sdk";
 
 
+interface TxPanelProps {
+  cat: {
+    id: string;
+    start: number;
+    chainName: string;
+    amount: number;
+    blockNumber: number;
+    chainId: number;
+    from: string;
+  };
+}
+
+
 function formatTokenAmount(cat: any) {
   const symbol = cat.token || "ETH";
   // Convert from base units (wei or token smallest unit) to human units
@@ -49,11 +62,18 @@ function formatEtherscanLink(chain_id: any, block_number: any) {
   return `${chainIdToEtherscan[chain_id]}${block_number}`;
 }
 
-const truncateAddress = (address: string): string =>
-  address.length < 10 ? address : `${address.slice(0, 6)}...${address.slice(-4)}`;
+const truncateAddress = (address?: string): string =>
+  !address
+    ? "Unknown"
+    : address.length < 10
+    ? address
+    : `${address.slice(0, 6)}...${address.slice(-4)}`;
 
 
-export const TxPanel: React.FC = ({ cat }) => {
+
+
+
+export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
 
   const { openPopup } = useTransactionPopup();
 
@@ -69,8 +89,8 @@ export const TxPanel: React.FC = ({ cat }) => {
     <div
       style={{
         position: "fixed",
-        bottom: "5%",
-        left: "5%",
+        top: "30%",
+        left: "70%",
         width: 260,
         minHeight: 180,
         backgroundImage: `url(${Board})`,

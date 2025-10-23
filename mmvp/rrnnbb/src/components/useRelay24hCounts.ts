@@ -58,7 +58,7 @@ export function useRelay24hAutoRefresh() {
       
 
       const json = await res.json();
-      console.log("Fetch Count Raw Response:", json);
+      // console.log("Fetch Count Raw Response:", json);
 
 
 
@@ -71,11 +71,11 @@ export function useRelay24hAutoRefresh() {
         return 0;
       }
       const key = Object.keys(json.data)[0];
-      console.log("Fetch Count Response:", json);
+      // console.log("Fetch Count Response:", json);
 
       const count = json.data?.[key]?.aggregate?.count ?? 0;
 
-      console.log(`[fetchCount] chain ${chainId} → ${count} (minBlock=${minBlock})`);
+      // console.log(`[fetchCount] chain ${chainId} → ${count} (minBlock=${minBlock})`);
       return count;
     } catch (err) {
       console.error("[fetchCount Exception]", err);
@@ -112,7 +112,7 @@ export function useRelay24hAutoRefresh() {
     );
 
     const total = perChain.reduce((s, x) => s + x.count, 0);
-    console.log("[24h updated]", perChain);
+    // console.log("[24h updated]", perChain);
     setCounts({ perChain, total });
   }
 

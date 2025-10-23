@@ -9,14 +9,14 @@ console.log("[TxCount24hPanel] mounted");
 export const TxCount24hPanel: React.FC = () => {
   const { perChain, total } = useRelay24hAutoRefresh();
 
-  console.log("[24h counts render]", perChain, total);
+  // console.log("[24h counts render]", perChain, total);
 
   if (!perChain?.length) {
     return (
       <div
         style={{
           position: "fixed",
-          top: "50%",
+          top: "70%",
           left: "70%",
           width: 260,
           height: 200,
@@ -47,7 +47,7 @@ export const TxCount24hPanel: React.FC = () => {
     <div
       style={{
         position: "fixed",
-        top: "50%",
+        top: "70%",
         left: "70%",
         width: 260,
         minHeight: 200,
