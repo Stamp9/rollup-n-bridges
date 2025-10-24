@@ -98,7 +98,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         backgroundRepeat: "no-repeat",
         color: "#2b2b2b",
         fontFamily: "'Press Start 2P', cursive",
-        fontSize: 9,
+        fontSize: 9.5,
         lineHeight: 1.6,
         borderRadius: 10,
         padding: "48px 20px 30px 20px",

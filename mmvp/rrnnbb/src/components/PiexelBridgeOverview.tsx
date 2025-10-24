@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSubscription } from "@apollo/client/react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { CustomBlockscoutProvider } from "./PixelBlockscoutProvider";
 
 import islandSrc from "../assets/ethereum.png";
@@ -11,6 +12,7 @@ import EthereumRunningSrc from "../assets/doggo2.gif";
 import BasecatRunningSrc from "../assets/cattie1.gif";
 import relayNodeSrc from "../assets/relay.png";
 import SeagulSrc from "../assets/seagul.png";
+import Fries from "../assets/rnb.png";
 
 import {
   NotificationProvider,
@@ -21,6 +23,7 @@ import { RelayL2LiveCounter } from "./RelayL2LiveCount";
 import { TxPanel } from "./PopupCard";
 import { TxCount24hPanel } from "./TxCount24hPanel";
 import { NodeCircle } from "./NodeCircle";
+
 
 import {
   ERC20_BASE_SUB,
@@ -66,6 +69,8 @@ export function PiexelBridgeOverview() {
   const [activeCat, setActiveCat] = useState<ActiveParticle | null>(null);
   const seenEventIds = useRef<Set<string>>(new Set());
   const [showTxPanel, setShowTxPanel] = useState(false);
+  const navigate = useNavigate();
+
 
 
   /** 🧩 Generic handler for new events */
@@ -164,12 +169,28 @@ export function PiexelBridgeOverview() {
 
   return (
       <>
+
+         <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundImage: `url(${temBgSrc})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center center",
+            zIndex: 0,
+          }}
+        />
         {/* Panels */}
         {showTxPanel && (
           <div className="fixed top-4 right-4 z-[10000] pointer-events-auto">
             <TxCount24hPanel />
           </div>
         )}
+        
         <CustomBlockscoutProvider>
         <div className="fixed bottom-4 left-4 z-[10000] pointer-events-auto">
           {activeCat ? <TxPanel 
@@ -212,8 +233,8 @@ export function PiexelBridgeOverview() {
           onClick={() => setShowTxPanel((prev) => !prev)}
           style={{
             position: "fixed",
-            bottom: "24px",
-            right: "24px",
+            bottom: "3%",
+            right: "2%",
             width: "128px",
             height: "128px",
             backgroundImage: `url(${SeagulSrc})`,
@@ -221,7 +242,7 @@ export function PiexelBridgeOverview() {
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
             cursor: "pointer",
-            zIndex: 11000,
+            zIndex: 1002,
             imageRendering: "pixelated",
             transition: "transform 0.1s ease",
           }}
@@ -230,49 +251,63 @@ export function PiexelBridgeOverview() {
           title={showTxPanel ? "Hide 24h TX Panel" : "Show 24h TX Panel"}
         />
 
-
-        {/* Scene */}
         <div
+          onClick={() => navigate("/about")}
           style={{
             position: "fixed",
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            backgroundImage: `url(${temBgSrc})`,
-            backgroundSize: "100% 100%",
+            bottom: "3%",
+            right: "10%",
+            width: "48px",
+            height: "48px",
+            backgroundImage: `url(${Fries})`,
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
+            cursor: "pointer",
+            zIndex: 1002,
+            imageRendering: "pixelated",
+            transition: "transform 0.1s ease",
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+          title="Go to About"
+        />
+
+        
+
+
+      {/* Scene */}
+      
+        <svg
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          preserveAspectRatio="xMidYMid meet"
+          style={{ width: "100%", height: "auto", background: "transparent", zIndex: 20, position: "fixed" }}
         >
-          <svg
-            viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-            preserveAspectRatio="xMidYMid meet"
-            style={{ width: "100%", height: "auto", background: "transparent" }}
-          >
-            <image
-              href={islandSrc}
-              x={islandNode.x - 110}
-              y={islandNode.y - 110}
-              width={220}
-              height={220}
-              preserveAspectRatio="xMidYMid slice"
-              style={{
-                filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))",
-              }}
-            />
+          <image
+            href={islandSrc}
+            x={islandNode.x - 110}
+            y={islandNode.y - 110}
+            width={220}
+            height={220}
+            preserveAspectRatio="xMidYMid slice"
+            style={{
+              filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))",
+            }}
+          />
 
-            <NodeCircle
-              x={relayNode.x}
-              y={relayNode.y}
-              label={relayNode.id}
-              type={relayNode.type}
-              imageSrc={relayNodeSrc}
-              imageRadius={72}
-            />
+          <NodeCircle
+            x={relayNode.x}
+            y={relayNode.y}
+            label={relayNode.id}
+            type={relayNode.type}
+            imageSrc={relayNodeSrc}
+            imageRadius={72}
+          />
 
-            {particles.map(renderCat)}
-          </svg>
-        </div>
+          {particles.map(renderCat)}
+        </svg>
+
+       
 
       </>
   );

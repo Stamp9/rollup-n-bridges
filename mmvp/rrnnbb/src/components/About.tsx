@@ -5,6 +5,7 @@ import bg from "../assets/bg.png";
 import Board from "../assets/aboout_bg.png";
 import masterpiece from "../assets/masterpiece.jpeg";
 import btnIdle from "../assets/aboout_button.png"; 
+import pixelworks from "../assets/pixel_rnb.png";
 
 export const About: React.FC = () => {
   const navigate = useNavigate();
@@ -129,7 +130,29 @@ export const About: React.FC = () => {
               />
             </div>
 
-            <div>Our Pixel Art Collections:</div>
+            <div style={{ marginBottom: "0.5rem" }}>Our Pixel Art Collections:</div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                margin: "0 0 1.5rem 0",
+              }}
+            >
+              <img
+                src={pixelworks}
+                alt="The Pixel Works"
+                loading="lazy"
+                style={{
+                  maxWidth: "100%",
+                  width: "min(520px, 100%)",
+                  height: "auto",
+                  borderRadius: "8px",
+                  boxShadow: "0 6px 18px rgba(0,0,0,0.35)",
+                  imageRendering: "pixelated",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                }}
+              />
+            </div>
           </div>
 
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>

@@ -92,14 +92,14 @@ export const TxCount24hPanel: React.FC = () => {
           </div>
         ))}
 
-        <hr
+        {/* <hr
           style={{
             border: 0,
             borderTop: "1px solid #cbd5e1",
             opacity: 0.6,
             margin: "8px 0",
           }}
-        />
+        /> */}
 
         <div
           style={{
@@ -109,7 +109,7 @@ export const TxCount24hPanel: React.FC = () => {
           }}
         >
           <span>Total</span>
-          <span style={{paddingLeft: "18px" }}>
+          <span style={{paddingLeft: "18px", color: "#ec942fff", fontVariantNumeric: "tabular-nums" }}>
             {total.toLocaleString()}
           </span>
         </div>
