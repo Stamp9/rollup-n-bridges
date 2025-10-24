@@ -69,7 +69,7 @@ export const BlockscoutPixelTheme = createGlobalStyle`
 
   .blockscout-theme span,
   .blockscout-theme p {
-    font-size: 12px !important;
+    font-size: 12px ;
     color: #374151 !important;
     font-family: 'Press Start 2P', cursive !important;
   }

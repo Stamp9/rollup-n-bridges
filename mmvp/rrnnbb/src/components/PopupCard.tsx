@@ -19,6 +19,7 @@ interface TxPanelProps {
     blockNumber: number;
     chainId: number;
     from: string;
+    txHash: string;
   };
 }
 
@@ -50,24 +51,24 @@ function formatTokenAmount(cat: any) {
 }
 
 export const chainIdToEtherscan: Record<number, string> = {
-  1: "https://etherscan.io/txs?block=",
-  10: "https://optimistic.etherscan.io/txs?block=",
-  42161: "https://arbiscan.io/txs?block=",
-  8453: "https://basescan.org/txs?block=",
+  1: "https://etherscan.io/tx/",
+  10: "https://optimistic.etherscan.io/tx/",
+  42161: "https://arbiscan.io/tx/",
+  8453: "https://basescan.org/tx/",
 };
 
 
-function formatEtherscanLink(chain_id: any, block_number: any) {
+function formatEtherscanLink(chain_id: any, tx_hash: any) {
   console.log(chainIdToEtherscan[chain_id])
-  return `${chainIdToEtherscan[chain_id]}${block_number}`;
+  return `${chainIdToEtherscan[chain_id]}${tx_hash}`;
 }
 
 const truncateAddress = (address?: string): string =>
   !address
     ? "Unknown"
     : address.length < 10
-    ? address
-    : `${address.slice(0, 6)}...${address.slice(-4)}`;
+      ? address
+      : `${address.slice(0, 6)}...${address.slice(-4)}`;
 
 
 
@@ -125,9 +126,9 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         GATO LOG
       </div>
 
-      
 
-      <div style={{ margin: "4px 0", color: "#374151",  paddingLeft: 20, }}>
+
+      <div style={{ margin: "4px 0", color: "#000", paddingLeft: 20, }}>
         Chain: <span style={{ color: "#000" }}>{cat.chainName}</span>
       </div>
 
@@ -145,38 +146,58 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
       </div>
 
       <div
-        onMouseDown={() =>
-          window.open(formatEtherscanLink(cat.chainId, cat.blockNumber), "_blank")
-        }
         style={{
-          cursor: "pointer",
-          color: "#2563eb",
-          textDecoration: "underline",
-          margin: "6px 0",
+          color: "#000",
           paddingLeft: 20,
-          transition: "opacity 0.2s",
         }}
-        onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
-        onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
       >
-        When: #{cat.blockNumber}
-      </div>
+        From:
+        <span
+          onMouseDown={() => viewHistory(cat.chainId, cat.from)}
+          style={{
+            cursor: "pointer",
+            color: "#000",
+            textDecoration: "wavy underline",
+            wordBreak: "break-all",
+            margin: "6px 0",
+            paddingLeft: 10,
+            transition: "opacity 0.2s",
+            fontSize: 8,
+          }}
+          onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
+          onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
 
+        >
+          {truncateAddress(cat.from)}
+        </span>
+      </div>
       <div
-        onMouseDown={() => viewHistory(cat.chainId, cat.from)}
         style={{
-          cursor: "pointer",
-          color: "#7c3aed",
-          textDecoration: "wavy underline",
-          wordBreak: "break-all",
-          margin: "6px 0",
+          color: "#000",
           paddingLeft: 20,
-          transition: "opacity 0.2s",
         }}
-        onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
-        onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
       >
-        Who: {truncateAddress(cat.from)}
+        Tx:
+        <span
+          onMouseDown={() =>
+            window.open(formatEtherscanLink(cat.chainId, cat.txHash), "_blank")
+          }
+          style={{
+            cursor: "pointer",
+            color: "#000",
+            textDecoration: "wavy underline",
+            wordBreak: "break-all",
+            margin: "6px 0",
+            paddingLeft: 10,
+            transition: "opacity 0.2s",
+            fontSize: 8,
+          }}
+          onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
+          onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
+
+        >
+          {truncateAddress(cat.txHash)}
+        </span>
       </div>
     </div>
 
