@@ -20,7 +20,7 @@ import {
 } from "@blockscout/app-sdk";
 
 import { RelayL2LiveCounter } from "./RelayL2LiveCount";
-import { TxPanel } from "./PopupCard";
+import { TxPanel } from "./TxPanel";
 import { TxCount24hPanel } from "./TxCount24hPanel";
 import { NodeCircle } from "./NodeCircle";
 
