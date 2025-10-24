@@ -12,17 +12,21 @@ import {
   NATIVE_ETHEREUM_SUB,
 } from "../data/subscriptions";
 
-import BaseIcon from "../assets/livecounter_chains/base.png";
-import OptimismIcon from "../assets/livecounter_chains/op.png";
-import ArbitrumIcon from "../assets/livecounter_chains/arb.png";
-import EthIcon from "../assets/livecounter_chains/eth.png";
+import BaseIconStatic from "../assets/livecounter_chains/base.png";
+import BaseIconRunning from "../assets/cattie1.gif";
+import OptimismIconStatic from "../assets/livecounter_chains/op.png";
+import OptimismIconRunning from "../assets/cattie2.gif";
+import ArbitrumIconStatic from "../assets/livecounter_chains/arb.png";
+import ArbitrumIconRunning from "../assets/cattie3.gif";
+import EthIconStatic from "../assets/livecounter_chains/eth.png";
+import EthIconRunning from "../assets/doggo2.gif";
 import PixelBox from "../assets/pixelbox.png";
 
 const CHAINS = [
-  { name: "Arbitrum", id: 42161, icon: ArbitrumIcon },
-  { name: "Base", id: 8453, icon: BaseIcon },
-  { name: "Optimism", id: 10, icon: OptimismIcon },
-  { name: "Ethereum", id: 1, icon: EthIcon },
+  { name: "Arbitrum", id: 42161, iconStatic: ArbitrumIconStatic, iconRunning: ArbitrumIconRunning },
+  { name: "Base", id: 8453, iconStatic: BaseIconStatic, iconRunning: BaseIconRunning },
+  { name: "Optimism", id: 10, iconStatic: OptimismIconStatic, iconRunning: OptimismIconRunning },
+  { name: "Ethereum", id: 1, iconStatic: EthIconStatic, iconRunning: EthIconRunning },
 ];
 
 interface RelayDepositEvent {
@@ -30,6 +34,26 @@ interface RelayDepositEvent {
   chain_id: number;
   block_number: number;
   amount: string;
+}
+
+const Cat = ({ iconStatic, iconRunning, name }) => {
+  const [hovered, setHovered] = useState(false);
+  return <img
+    onMouseOver={() => setHovered(true)}
+    onMouseOut={() => setHovered(false)}
+    src={hovered ? iconRunning : iconStatic}
+    alt={name}
+    style={{
+      position: "absolute",
+      left: "-24px",
+      width: "22px",
+      height: "22px",
+      filter: "drop-shadow(1px 1px 1px rgba(0,0,0,0.3))",
+    }}
+  />
+
+
+
 }
 
 export const RelayL2LiveCounter: React.FC = () => {
@@ -121,6 +145,7 @@ export const RelayL2LiveCounter: React.FC = () => {
     >
       {CHAINS.map((chain) => (
         <div
+          onMouseOver={() => console.log("meow")}
           key={chain.name}
           style={{
             position: "relative",
@@ -131,18 +156,7 @@ export const RelayL2LiveCounter: React.FC = () => {
             height: "42px",
           }}
         >
-          <img
-            src={chain.icon}
-            alt={chain.name}
-            style={{
-              position: "absolute",
-              left: "-24px",
-              width: "22px",
-              height: "22px",
-              filter: "drop-shadow(1px 1px 1px rgba(0,0,0,0.3))",
-            }}
-          />
-
+          <Cat iconRunning={chain.iconRunning} iconStatic={chain.iconStatic} name={chain.name} />
           <div
             style={{
               backgroundImage: `url(${PixelBox})`,
