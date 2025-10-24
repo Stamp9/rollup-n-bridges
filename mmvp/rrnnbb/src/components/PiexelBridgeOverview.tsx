@@ -6,7 +6,7 @@ import { CustomBlockscoutProvider } from "./PixelBlockscoutProvider";
 
 import PixelBox from "../assets/pixelbox.png";
 import islandSrc from "../assets/ethereum.png";
-import temBgSrc from "../assets/bg.png";
+import temBgSrc from "../assets/bg_new.png";
 import ABRuningSrc from "../assets/cattie3.gif";
 import OPcatRunningSrc from "../assets/cattie2.gif";
 import EthereumRunningSrc from "../assets/doggo2.gif";

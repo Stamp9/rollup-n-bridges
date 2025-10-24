@@ -92,6 +92,8 @@ export function useRelay24hAutoRefresh() {
       metaData.chain_metadata.map((m) => [m.chain_id, m.block_height]),
     );
     console.log("[latest blocks]", latest);
+    console.log("[metaData in useRelay24hAutoRefresh]", metaData);
+
 
     const minBlock: Record<number, number> = {};
     CHAINS.forEach((c) => {
@@ -118,6 +120,7 @@ export function useRelay24hAutoRefresh() {
 
   // refresh every 20 seconds
   useEffect(() => {
+    console.log("[useRelay24hAutoRefresh] Setting up auto-refresh");
     refresh24hCounts(); // initial load
     const t = setInterval(refresh24hCounts, 20_000);
     return () => clearInterval(t);

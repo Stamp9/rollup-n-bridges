@@ -114,7 +114,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
       <div
         style={{
           fontSize: 12,
-          color: "#1e293b",
+          color: "#668dcbff",
           fontWeight: "bold",
           marginBottom: 10,
           marginTop: 16,
@@ -128,7 +128,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
 
 
 
-      <div style={{ margin: "4px 0", color: "#000", paddingLeft: 20, }}>
+      <div style={{ margin: "6px 0", color: "#000", paddingLeft: 20, }}>
         Chain: <span style={{ color: "#000" }}>{cat.chainName}</span>
       </div>
 
@@ -149,6 +149,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         style={{
           color: "#000",
           paddingLeft: 20,
+          marginTop: 6,
         }}
       >
         From:
@@ -162,7 +163,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
             margin: "6px 0",
             paddingLeft: 10,
             transition: "opacity 0.2s",
-            fontSize: 8,
+            fontSize: 10,
           }}
           onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
           onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
@@ -175,6 +176,8 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         style={{
           color: "#000",
           paddingLeft: 20,
+          fontSize: 10,
+          marginTop: 6,
         }}
       >
         Tx:
@@ -191,7 +194,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
             margin: "6px 0",
             paddingLeft: 10,
             transition: "opacity 0.2s",
-            fontSize: 8,
+            fontSize: 10,
           }}
           onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
           onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}

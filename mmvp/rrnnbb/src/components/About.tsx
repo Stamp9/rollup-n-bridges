@@ -1,7 +1,7 @@
 // src/pages/About.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import bg from "../assets/bg.png";
+import bg from "../assets/bg_new.png";
 import Board from "../assets/aboout_bg.png";
 import masterpiece from "../assets/masterpiece.jpeg";
 import btnIdle from "../assets/aboout_button.png";

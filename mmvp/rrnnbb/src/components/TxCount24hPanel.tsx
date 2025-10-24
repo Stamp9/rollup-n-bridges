@@ -3,7 +3,7 @@ import React from "react";
 import { useRelay24hAutoRefresh } from "./useRelay24hCounts"; 
 import Board from "../assets/livecounter_chains/pixelboard.png";
 
-console.log("[TxCount24hPanel] mounted");
+console.log("[useRelay24hAutoRefresh] mounted");
 
 
 export const TxCount24hPanel: React.FC = () => {
