@@ -89,8 +89,8 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
     <div
       style={{
         position: "fixed",
-        top: "30%",
-        left: "70%",
+        top: "28%",
+        left: "80%",
         width: 260,
         minHeight: 180,
         backgroundImage: `url(${Board})`,
@@ -122,7 +122,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
           paddingLeft: 60,
         }}
       >
-        TX DETAILS
+        GATO LOG
       </div>
 
       
@@ -141,7 +141,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
           width: "fit-content",
         }}
       >
-        {formatTokenAmount(cat)}
+        Money: {formatTokenAmount(cat)}
       </div>
 
       <div
@@ -159,7 +159,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
         onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
       >
-        Block: #{cat.blockNumber}
+        When: #{cat.blockNumber}
       </div>
 
       <div
@@ -167,7 +167,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         style={{
           cursor: "pointer",
           color: "#7c3aed",
-          textDecoration: "underline",
+          textDecoration: "wavy underline",
           wordBreak: "break-all",
           margin: "6px 0",
           paddingLeft: 20,
@@ -176,7 +176,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
         onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
       >
-        From: {truncateAddress(cat.from)}
+        Who: {truncateAddress(cat.from)}
       </div>
     </div>
 

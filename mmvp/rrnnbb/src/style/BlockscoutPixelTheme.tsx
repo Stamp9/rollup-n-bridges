@@ -23,9 +23,13 @@ export const BlockscoutPixelTheme = createGlobalStyle`
   .blockscout-theme h1,
   .blockscout-theme h2,
   .blockscout-theme h3,
-  .blockscout-theme h4 {
+  .blockscout-theme h4,
+  .blockscout-theme h5,
+  .blockscout-theme h6,
+  .blockscout-theme strong {
+    font-size: 14px !important;
     color: #0f172a !important;
-    text-shadow: 1px 1px 0 #38bdf8, 2px 2px 0 #1e3a8a;
+    text-shadow: 0.5px 0.5px 0 #38bdf8, 1px 1px 0 #1e3a8a;
     font-family: 'Press Start 2P', cursive !important;
   }
 

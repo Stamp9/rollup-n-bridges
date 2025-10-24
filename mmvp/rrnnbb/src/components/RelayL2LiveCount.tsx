@@ -33,7 +33,6 @@ interface RelayDepositEvent {
 }
 
 export const RelayL2LiveCounter: React.FC = () => {
-  // 每条链各自 ERC20 + Native 订阅
   const subs = {
     Base: {
       erc20: useSubscription(ERC20_BASE_SUB),
@@ -63,7 +62,6 @@ export const RelayL2LiveCounter: React.FC = () => {
   const seenEventIds = useRef<Set<string>>(new Set());
   const [started, setStarted] = useState(false);
 
-  /** 处理某链上的交易 */
   const handleTx = (chainName: string, tx: RelayDepositEvent | undefined) => {
     if (!tx || seenEventIds.current.has(tx.event_id)) return;
     seenEventIds.current.add(tx.event_id);
@@ -73,7 +71,6 @@ export const RelayL2LiveCounter: React.FC = () => {
     }));
   };
 
-  /** 跳过第一次推送（历史数据） */
   useEffect(() => {
     const anyData =
       subs.Base.erc20.data ||
@@ -92,7 +89,6 @@ export const RelayL2LiveCounter: React.FC = () => {
     }
 
     if (started) {
-      // 每条链单独更新自己的计数
       (Object.entries(subs) as [string, any][]).forEach(([chainName, { erc20, native }]) => {
         const e = erc20.data?.RelayDepository_RelayErc20Deposit?.[0];
         const n = native.data?.RelayDepository_RelayNativeDeposit?.[0];
@@ -135,7 +131,6 @@ export const RelayL2LiveCounter: React.FC = () => {
             height: "42px",
           }}
         >
-          {/* icon 在像素框外 */}
           <img
             src={chain.icon}
             alt={chain.name}
@@ -148,7 +143,6 @@ export const RelayL2LiveCounter: React.FC = () => {
             }}
           />
 
-          {/* 像素风小框 */}
           <div
             style={{
               backgroundImage: `url(${PixelBox})`,

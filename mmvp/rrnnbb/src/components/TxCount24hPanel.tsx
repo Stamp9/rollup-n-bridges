@@ -16,8 +16,8 @@ export const TxCount24hPanel: React.FC = () => {
       <div
         style={{
           position: "fixed",
-          top: "70%",
-          left: "70%",
+          top: "60%",
+          left: "80%",
           width: 260,
           height: 200,
           backgroundImage: `url(${Board})`,
@@ -47,10 +47,10 @@ export const TxCount24hPanel: React.FC = () => {
     <div
       style={{
         position: "fixed",
-        top: "63%",
+        top: "60%",
         left: "80%",
         width: 260,
-        minHeight: 200,
+        minHeight: 220,
         backgroundImage: `url(${Board})`,
         backgroundSize: "100% 100%",
         backgroundPosition: "center",
@@ -67,6 +67,19 @@ export const TxCount24hPanel: React.FC = () => {
         marginTop: "-100px",
       }}
     >
+
+      <h3
+        style={{
+          fontFamily: "'Press Start 2P', cursive",
+          fontSize: 12,
+          color: "#7b9117ff",
+          letterSpacing: "1px",
+          paddingLeft: 28,
+          paddingTop: 12,
+        }}  
+      >
+        Cat SCOREBOARD
+      </h3>
       <div
         style={{
           display: "grid",
@@ -74,7 +87,6 @@ export const TxCount24hPanel: React.FC = () => {
           paddingRight: 8,
           columnGap: 12,
           paddingLeft: 24,
-          paddingTop: 24,
         }}
       >
         {perChain.map((c) => (
