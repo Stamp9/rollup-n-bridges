@@ -180,7 +180,8 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         Tx:
         <span
           onMouseDown={() =>
-            window.open(formatEtherscanLink(cat.chainId, cat.txHash), "_blank")
+            window.open(
+              `https://relay.link/transaction/${cat.txHash}`, "_blank")
           }
           style={{
             cursor: "pointer",
