@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import bg from "../assets/bg.png";
 import Board from "../assets/aboout_bg.png";
 import masterpiece from "../assets/masterpiece.jpeg";
-import btnIdle from "../assets/aboout_button.png"; 
+import btnIdle from "../assets/aboout_button.png";
 import pixelworks from "../assets/pixel_rnb.png";
 
 export const About: React.FC = () => {
@@ -51,7 +51,7 @@ export const About: React.FC = () => {
             fontSize: "24px",
             textShadow: "2px 2px 0 #1e3a8a, 4px 4px 0 #1e40af",
             marginBottom: "1.5rem",
-            padding: "1rem 0.5rem 0.5rem 0.5rem", 
+            padding: "1rem 0.5rem 0.5rem 0.5rem",
           }}
         >
           About Envio Gato 🐈‍⬛
@@ -75,12 +75,11 @@ export const About: React.FC = () => {
               marginRight: "2.5rem",
             }}
           >
-            Envio Gato is a ETHOnline Hackathon project. 
-            <br />
-            It is real-time visualization of bridge transactions through Relay. Each cat represents a live transaction running across the bridge!
-           
-            
-            <br />
+            Envio Gato is a ETHOnline Hackathon project.
+            <br /><br />
+            It is a real-time visualization of bridge transactions through Relay. Each cat represents a live transaction running across the bridge!
+
+            <br /><br />
             Built with <a href="https://envio.dev/">Envio</a> and <a href="https://docs.blockscout.com/devs/blockscout-sdk">BlockScout</a>. Inspired by <a href="https://txcity.io/v/eth-btc">TxCity</a>.
           </p>
 
@@ -94,7 +93,7 @@ export const About: React.FC = () => {
               marginRight: "2.5rem",
             }}
           >
-            We are proud that we draw all the pixel art ourselves (including the
+            We are proud that we drew all the pixel art ourselves (including the
             one you are looking at now)!
           </p>
 
@@ -153,12 +152,21 @@ export const About: React.FC = () => {
                   border: "1px solid rgba(255,255,255,0.12)",
                 }}
               />
+
             </div>
 
-            <p>
-            And Ben wants to say:
-            </p>
+            <br />            Most block explorers and visualizations can be very informative but boring - we hoped to do something creative this hackathon and show
+            that such products can be fun while still being useful as well!
+
+
+            <br /><br />
+            P.S: We guessed that 'Envio' was named as such because it means 'send' in Spanish, so we named this project <i>'Envio Gato'</i> since we're sending cats across the bridge (and cats are great) :)
+            <br />
+            <br />
+
+
           </div>
+
 
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
             <button
@@ -186,8 +194,8 @@ export const About: React.FC = () => {
                   (e.currentTarget.style.transform = "translateY(0)")
                 }
                 onMouseDown={(e) =>
-                  (e.currentTarget.style.transform =
-                    "translateY(0) scale(0.98)")
+                (e.currentTarget.style.transform =
+                  "translateY(0) scale(0.98)")
                 }
                 onMouseUp={(e) =>
                   (e.currentTarget.style.transform = "translateY(-1px)")
@@ -195,7 +203,7 @@ export const About: React.FC = () => {
               >
                 <img
                   src={btnIdle}
-                  alt="" 
+                  alt=""
                   style={{
                     display: "block",
                     width: 160,
