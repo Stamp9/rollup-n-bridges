@@ -60,6 +60,7 @@ type ActiveParticle = {
   amount: number;
   blockNumber: number;
   chainId: number;
+  txHash: string;
   from: string;
 };
 
@@ -91,6 +92,7 @@ export function PiexelBridgeOverview() {
       amount: Number(tx.amount ?? 0),
       blockNumber: tx.block_number ?? 0,
       chainId: tx.chain_id ?? 0,
+      txHash: tx.tx_hash ?? "",
       from: tx.from ?? "Unknown",
     };
     console.log("New blocknumber:", p.blockNumber);
