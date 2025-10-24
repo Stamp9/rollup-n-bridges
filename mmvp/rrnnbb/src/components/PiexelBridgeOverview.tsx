@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { CustomBlockscoutProvider } from "./PixelBlockscoutProvider";
 
 import PixelBox from "../assets/pixelbox.png";
+import Bridge from "../assets/Bridge.png";
 import islandSrc from "../assets/ethereum.png";
 import temBgSrc from "../assets/bg_new.png";
 import ABRuningSrc from "../assets/cattie3.gif";
@@ -306,6 +307,7 @@ export function PiexelBridgeOverview() {
 
       {/* Scene */}
 
+
       <svg
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         preserveAspectRatio="xMidYMid meet"
@@ -324,6 +326,14 @@ export function PiexelBridgeOverview() {
             filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))",
           }}
         />
+        <image
+          href={Bridge}
+          width={100}
+          height={80}
+          x={islandNode.x + 110}
+          y={islandNode.y - 50}
+          style={{
+          }} />
 
         <NodeCircle
           x={relayNode.x}
