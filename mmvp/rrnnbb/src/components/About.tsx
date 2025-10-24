@@ -75,12 +75,13 @@ export const About: React.FC = () => {
               marginRight: "2.5rem",
             }}
           >
-            Envio Gato is a ETHGlobal Online Hackathon project. It is real-time
-            visualization of bridge transactions through Relay.
+            Envio Gato is a ETHOnline Hackathon project. 
             <br />
-            Each cat represents a live transaction running across the bridge!
+            It is real-time visualization of bridge transactions through Relay. Each cat represents a live transaction running across the bridge!
+           
+            
             <br />
-            Built with Envio and Inspired by TxCity.
+            Built with <a href="https://envio.dev/">Envio</a> and inspired by <a href="https://txcity.io/v/eth-btc">TxCity</a>.
           </p>
 
           <p
@@ -153,6 +154,10 @@ export const About: React.FC = () => {
                 }}
               />
             </div>
+
+            <p>
+            And Ben wants to say:
+            </p>
           </div>
 
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
@@ -225,12 +230,12 @@ export const About: React.FC = () => {
       </div>
 
       <p style={{ marginTop: "12px" }}>
-        Created by{" "}
+        Built happily by{" "}
         <a
           href="https://github.com/Stamp9/rollup-n-bridges"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: "#38bdf8", textDecoration: "underline" }}
+          style={{ color: "#faab0eff", textDecoration: "underline" }}
         >
           RnB
         </a>
