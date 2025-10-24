@@ -85,14 +85,14 @@ export function PiexelBridgeOverview() {
 
     const id = `${tx.event_id}-${Date.now()}`;
     const p = {
-        id,
-        chainName,
-        start: Date.now(),
-        amount: Number(tx.amount ?? 0),
-        blockNumber: tx.block_number ?? 0,
-        chainId: tx.chain_id ?? 0,
-        from: tx.from ?? "Unknown",
-  };
+      id,
+      chainName,
+      start: Date.now(),
+      amount: Number(tx.amount ?? 0),
+      blockNumber: tx.block_number ?? 0,
+      chainId: tx.chain_id ?? 0,
+      from: tx.from ?? "Unknown",
+    };
     console.log("New blocknumber:", p.blockNumber);
 
     setParticles((prev) => [...prev, p]);
@@ -169,148 +169,148 @@ export function PiexelBridgeOverview() {
   };
 
   return (
-      <>
+    <>
 
-         <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundImage: `url(${temBgSrc})`,
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center center",
-            zIndex: 0,
-          }}
-        />
-        {/* Panels */}
-        {showTxPanel && (
-          <div className="fixed top-4 right-4 z-[10000] pointer-events-auto">
-            <TxCount24hPanel />
-          </div>
-        )}
-        
-        <CustomBlockscoutProvider>
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          backgroundImage: `url(${temBgSrc})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center center",
+          zIndex: 0,
+        }}
+      />
+      {/* Panels */}
+      {showTxPanel && (
+        <div className="fixed top-4 right-4 z-[10000] pointer-events-auto">
+          <TxCount24hPanel />
+        </div>
+      )}
+
+      <CustomBlockscoutProvider>
         <div className="fixed bottom-4 left-4 z-[10000] pointer-events-auto">
-          {activeCat ? <TxPanel 
+          {activeCat ? <TxPanel
             cat={{ ...activeCat }} /> : null}
         </div>
       </CustomBlockscoutProvider>
 
 
-        <RelayL2LiveCounter />
+      <RelayL2LiveCounter />
 
-        {/* Title */}
-        <header
+      {/* Title */}
+      <header
+        style={{
+          position: "absolute",
+          top: "2%",
+          left: "20%",
+          transform: "translateX(-50%)",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 30,
+        }}
+      >
+        <h1
           style={{
-            position: "absolute",
-            top: "2%",
-            left: "20%",
-            transform: "translateX(-50%)",
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 30,
+            fontFamily: "'Press Start 2P', cursive",
+            fontSize: "20px",
+            color: "#f8fafc",
+            textShadow: "2px 2px 0 #38bdf8, 4px 4px 0 #1e3a8a",
+            letterSpacing: "2px",
           }}
         >
-          <h1
-            style={{
-              fontFamily: "'Press Start 2P', cursive",
-              fontSize: "20px",
-              color: "#f8fafc",
-              textShadow: "2px 2px 0 #38bdf8, 4px 4px 0 #1e3a8a",
-              letterSpacing: "2px",
-            }}
-          >
-            Envio Gato
-          </h1>
-        </header>
+          Envio Gato
+        </h1>
+      </header>
 
-        {/* 🐦 Pixel Seagull toggle button */}
-        <div
-          onClick={() => setShowTxPanel((prev) => !prev)}
-          style={{
-            position: "fixed",
-            bottom: "3%",
-            right: "2%",
-            width: "128px",
-            height: "128px",
-            backgroundImage: `url(${SeagulSrc})`,
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-            cursor: "pointer",
-            zIndex: 1002,
-            imageRendering: "pixelated",
-            transition: "transform 0.1s ease",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
-          title={showTxPanel ? "Hide 24h TX Panel" : "Show 24h TX Panel"}
-        />
+      {/* 🐦 Pixel Seagull toggle button */}
+      <div
+        onClick={() => setShowTxPanel((prev) => !prev)}
+        style={{
+          position: "fixed",
+          bottom: "3%",
+          right: "2%",
+          width: "128px",
+          height: "128px",
+          backgroundImage: `url(${SeagulSrc})`,
+          backgroundSize: "contain",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          cursor: "pointer",
+          zIndex: 1002,
+          imageRendering: "pixelated",
+          transition: "transform 0.1s ease",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+        title={showTxPanel ? "Hide 24h TX Panel" : "Show 24h TX Panel"}
+      />
 
-        <div
-          onClick={() => navigate("/about")}
-          style={{
-            position: "fixed",
-            bottom: "3%",
-            right: "10%",
-            width: "48px",
-            height: "48px",
-            backgroundImage: `url(${Fries})`,
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-            cursor: "pointer",
-            zIndex: 1002,
-            imageRendering: "pixelated",
-            transition: "transform 0.1s ease",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
-          title="Go to About"
-        />
+      <div
+        onClick={() => navigate("/about")}
+        style={{
+          position: "fixed",
+          bottom: "3%",
+          right: "10%",
+          width: "48px",
+          height: "48px",
+          backgroundImage: `url(${Fries})`,
+          backgroundSize: "contain",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          cursor: "pointer",
+          zIndex: 1002,
+          imageRendering: "pixelated",
+          transition: "transform 0.1s ease",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+        title="Go to About"
+      />
 
-        
+
 
 
       {/* Scene */}
-      
-        <svg
-          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          preserveAspectRatio="xMidYMid meet"
-          style={{ width: "100%", height: "auto", background: "transparent", zIndex: 20, position: "fixed" }}
-        >
-          <image
-            href={islandSrc}
-            x={islandNode.x - 110}
-            y={islandNode.y - 110}
-            width={220}
-            height={220}
-            preserveAspectRatio="xMidYMid slice"
-            style={{
-              filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))",
-            }}
-          />
 
-          <NodeCircle
-            x={relayNode.x}
-            y={relayNode.y}
-            label={relayNode.id}
-            type={relayNode.type}
-            imageSrc={relayNodeSrc}
-            imageRadius={72}
-          />
+      <svg
+        viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+        preserveAspectRatio="xMidYMid meet"
+        style={{ width: "100%", height: "auto", background: "transparent", zIndex: 20, position: "fixed" }}
+      >
+        <image
+          href={islandSrc}
+          x={islandNode.x - 110}
+          y={islandNode.y - 110}
+          width={220}
+          height={220}
+          preserveAspectRatio="xMidYMid slice"
+          style={{
+            filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))",
+          }}
+        />
 
-          {particles.map(renderCat)}
-        </svg>
+        <NodeCircle
+          x={relayNode.x}
+          y={relayNode.y}
+          label={relayNode.id}
+          type={relayNode.type}
+          imageSrc={relayNodeSrc}
+          imageRadius={72}
+        />
 
-       
+        {particles.map(renderCat)}
+      </svg>
 
-      </>
+
+
+    </>
   );
 }
 
