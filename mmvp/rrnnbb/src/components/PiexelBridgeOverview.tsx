@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { CustomBlockscoutProvider } from "./PixelBlockscoutProvider";
 
+import PixelBox from "../assets/pixelbox.png";
 import islandSrc from "../assets/ethereum.png";
 import temBgSrc from "../assets/bg.png";
 import ABRuningSrc from "../assets/cattie3.gif";
@@ -12,6 +13,8 @@ import EthereumRunningSrc from "../assets/doggo2.gif";
 import BasecatRunningSrc from "../assets/cattie1.gif";
 import relayNodeSrc from "../assets/relay.png";
 import SeagulSrc from "../assets/seagul.png";
+import ahhhh from '../assets/seagullsound.mp3'
+
 import Fries from "../assets/rnb.png";
 
 import {
@@ -66,10 +69,13 @@ type ActiveParticle = {
 
 
 export function PiexelBridgeOverview() {
+  let audio = new Audio(ahhhh)
+
   const [particles, setParticles] = useState<ActiveParticle[]>([]);
   const [activeCat, setActiveCat] = useState<ActiveParticle | null>(null);
   const seenEventIds = useRef<Set<string>>(new Set());
   const [showTxPanel, setShowTxPanel] = useState(false);
+  const [info, setInfo] = useState("");
   const navigate = useNavigate();
 
 
@@ -187,6 +193,7 @@ export function PiexelBridgeOverview() {
           zIndex: 0,
         }}
       />
+
       {/* Panels */}
       {showTxPanel && (
         <div className="fixed top-4 right-4 z-[10000] pointer-events-auto">
@@ -202,7 +209,7 @@ export function PiexelBridgeOverview() {
       </CustomBlockscoutProvider>
 
 
-      <RelayL2LiveCounter />
+      <RelayL2LiveCounter setInfo={setInfo} />
 
       {/* Title */}
       <header
@@ -231,9 +238,13 @@ export function PiexelBridgeOverview() {
         </h1>
       </header>
 
+
       {/* 🐦 Pixel Seagull toggle button */}
       <div
-        onClick={() => setShowTxPanel((prev) => !prev)}
+        onClick={() => {
+          audio.play();
+          setShowTxPanel((prev) => !prev);
+        }}
         style={{
           position: "fixed",
           bottom: "3%",
@@ -249,8 +260,15 @@ export function PiexelBridgeOverview() {
           imageRendering: "pixelated",
           transition: "transform 0.1s ease",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+        onMouseEnter={(e) => {
+
+          setInfo("Tx 24hr stats");
+          e.currentTarget.style.transform = "scale(1.1)";
+        }}
+        onMouseLeave={(e) => {
+          setInfo("");
+          e.currentTarget.style.transform = "scale(1.0)";
+        }}
         title={showTxPanel ? "Hide 24h TX Panel" : "Show 24h TX Panel"}
       />
 
@@ -271,8 +289,15 @@ export function PiexelBridgeOverview() {
           imageRendering: "pixelated",
           transition: "transform 0.1s ease",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+        onMouseEnter={(e) => {
+          setInfo("About");
+          e.currentTarget.style.transform = "scale(1.1)";
+        }
+        }
+        onMouseLeave={(e) => {
+          setInfo("");
+          e.currentTarget.style.transform = "scale(1.0)";
+        }}
         title="Go to About"
       />
 
@@ -287,6 +312,8 @@ export function PiexelBridgeOverview() {
         style={{ width: "100%", height: "auto", background: "transparent", zIndex: 20, position: "fixed" }}
       >
         <image
+          onMouseOver={() => setInfo("Ethereum Island")}
+          onMouseOut={() => setInfo("")}
           href={islandSrc}
           x={islandNode.x - 110}
           y={islandNode.y - 110}
@@ -305,15 +332,47 @@ export function PiexelBridgeOverview() {
           type={relayNode.type}
           imageSrc={relayNodeSrc}
           imageRadius={72}
+          setInfo={setInfo}
         />
 
         {particles.map(renderCat)}
       </svg>
 
 
+      {info !== "" && (
+        <div>
+          <div
+            style={{
+              backgroundImage: `url(${PixelBox})`,
+              backgroundSize: "100% 100%",
+              backgroundRepeat: "no-repeat",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "4px 10px",
+              textAlign: "center",
+              bottom: "5%",
+              marginRight: "8px",
+              position: "fixed",
+              width: 120,
+              minHeight: 40,
+              maxHeight: 120,
+              backgroundPosition: "center",
+              zIndex: 1000,
+              color: "white",
+              fontSize: 12,
+              lineHeight: 1.4,
+              borderRadius: 8,
+              fontFamily: "'Press Start 2P', cursive",
+              pointerEvents: "auto",
+            }}
+          >
+            <strong>{info}</strong>
+          </div>
+        </div>
+      )}
 
     </>
   );
 }
-
 

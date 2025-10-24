@@ -36,11 +36,18 @@ interface RelayDepositEvent {
   amount: string;
 }
 
-const Cat = ({ iconStatic, iconRunning, name }) => {
+const Cat = ({ iconStatic, iconRunning, name, setInfo }) => {
   const [hovered, setHovered] = useState(false);
   return <img
-    onMouseOver={() => setHovered(true)}
-    onMouseOut={() => setHovered(false)}
+    onMouseOver={() => {
+      setHovered(true);
+      setInfo(name);
+    }}
+    onMouseOut={() => {
+      setHovered(false);
+      setInfo("");
+    }
+    }
     src={hovered ? iconRunning : iconStatic}
     alt={name}
     style={{
@@ -56,7 +63,7 @@ const Cat = ({ iconStatic, iconRunning, name }) => {
 
 }
 
-export const RelayL2LiveCounter: React.FC = () => {
+export const RelayL2LiveCounter: React.FC = ({ setInfo }) => {
   const subs = {
     Base: {
       erc20: useSubscription(ERC20_BASE_SUB),
@@ -156,7 +163,7 @@ export const RelayL2LiveCounter: React.FC = () => {
             height: "42px",
           }}
         >
-          <Cat iconRunning={chain.iconRunning} iconStatic={chain.iconStatic} name={chain.name} />
+          <Cat iconRunning={chain.iconRunning} iconStatic={chain.iconStatic} name={chain.name} setInfo={setInfo} />
           <div
             style={{
               backgroundImage: `url(${PixelBox})`,
