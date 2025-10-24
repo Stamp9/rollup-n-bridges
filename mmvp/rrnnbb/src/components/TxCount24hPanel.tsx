@@ -47,8 +47,8 @@ export const TxCount24hPanel: React.FC = () => {
     <div
       style={{
         position: "fixed",
-        top: "70%",
-        left: "70%",
+        top: "63%",
+        left: "80%",
         width: 260,
         minHeight: 200,
         backgroundImage: `url(${Board})`,

@@ -93,6 +93,7 @@ export function PiexelBridgeOverview() {
         chainId: tx.chain_id ?? 0,
         from: tx.from ?? "Unknown",
   };
+    console.log("New blocknumber:", p.blockNumber);
 
     setParticles((prev) => [...prev, p]);
     console.log(`[🐾 New TX ${chainName}]`, tx);
