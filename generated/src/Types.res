@@ -131,7 +131,7 @@ module AggregatedBlock = {
 }
 module AggregatedTransaction = {
   @genType
-  type t = {}
+  type t = {hash: string}
 }
 
 @genType.as("EventLog")
@@ -330,9 +330,9 @@ let contractName = contractName
 @genType
 type eventArgs = {from: Address.t, token: Address.t, amount: bigint, id: string}
 @genType
-type block = Block.t
+type block = {number: int, timestamp: int, hash: string}
 @genType
-type transaction = Transaction.t
+type transaction = {hash: string}
 
 @genType
 type event = {
@@ -362,8 +362,8 @@ type handler<'loaderReturn> = Internal.genericHandler<handlerArgs<'loaderReturn>
 type contractRegister = Internal.genericContractRegister<Internal.genericContractRegisterArgs<event, contractRegistrations>>
 
 let paramsRawEventSchema = S.object((s): eventArgs => {from: s.field("from", Address.schema), token: s.field("token", Address.schema), amount: s.field("amount", BigInt.schema), id: s.field("id", S.string)})
-let blockSchema = Block.schema
-let transactionSchema = Transaction.schema
+let blockSchema = S.object((s): block => {number: s.field("number", S.int), timestamp: s.field("timestamp", S.int), hash: s.field("hash", S.string)})
+let transactionSchema = S.object((s): transaction => {hash: s.field("hash", S.string)})
 
 let handlerRegister: EventRegister.t = EventRegister.make(
   ~contractName,
@@ -405,9 +405,9 @@ let contractName = contractName
 @genType
 type eventArgs = {from: Address.t, amount: bigint, id: string}
 @genType
-type block = Block.t
+type block = {number: int, timestamp: int, hash: string}
 @genType
-type transaction = Transaction.t
+type transaction = {hash: string}
 
 @genType
 type event = {
@@ -437,8 +437,8 @@ type handler<'loaderReturn> = Internal.genericHandler<handlerArgs<'loaderReturn>
 type contractRegister = Internal.genericContractRegister<Internal.genericContractRegisterArgs<event, contractRegistrations>>
 
 let paramsRawEventSchema = S.object((s): eventArgs => {from: s.field("from", Address.schema), amount: s.field("amount", BigInt.schema), id: s.field("id", S.string)})
-let blockSchema = Block.schema
-let transactionSchema = Transaction.schema
+let blockSchema = S.object((s): block => {number: s.field("number", S.int), timestamp: s.field("timestamp", S.int), hash: s.field("hash", S.string)})
+let transactionSchema = S.object((s): transaction => {hash: s.field("hash", S.string)})
 
 let handlerRegister: EventRegister.t = EventRegister.make(
   ~contractName,

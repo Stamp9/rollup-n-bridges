@@ -28,7 +28,7 @@ export type EventFunctions_MockBlock_t = {
   readonly timestamp?: number
 };
 
-export type EventFunctions_MockTransaction_t = {};
+export type EventFunctions_MockTransaction_t = { readonly hash?: string };
 
 export type EventFunctions_mockEventData = {
   readonly chainId?: number; 

@@ -110,7 +110,7 @@ export type AggregatedBlock_t = {
   readonly timestamp: number
 };
 
-export type AggregatedTransaction_t = {};
+export type AggregatedTransaction_t = { readonly hash: string };
 
 export type eventLog<params> = Internal_genericEvent<params,Block_t,Transaction_t>;
 export type EventLog<params> = eventLog<params>;
@@ -150,9 +150,13 @@ export type RelayDepository_RelayErc20Deposit_eventArgs = {
   readonly id: string
 };
 
-export type RelayDepository_RelayErc20Deposit_block = Block_t;
+export type RelayDepository_RelayErc20Deposit_block = {
+  readonly number: number; 
+  readonly timestamp: number; 
+  readonly hash: string
+};
 
-export type RelayDepository_RelayErc20Deposit_transaction = Transaction_t;
+export type RelayDepository_RelayErc20Deposit_transaction = { readonly hash: string };
 
 export type RelayDepository_RelayErc20Deposit_event = {
   /** The parameters or arguments associated with this event. */
@@ -189,9 +193,13 @@ export type RelayDepository_RelayNativeDeposit_eventArgs = {
   readonly id: string
 };
 
-export type RelayDepository_RelayNativeDeposit_block = Block_t;
+export type RelayDepository_RelayNativeDeposit_block = {
+  readonly number: number; 
+  readonly timestamp: number; 
+  readonly hash: string
+};
 
-export type RelayDepository_RelayNativeDeposit_transaction = Transaction_t;
+export type RelayDepository_RelayNativeDeposit_transaction = { readonly hash: string };
 
 export type RelayDepository_RelayNativeDeposit_event = {
   /** The parameters or arguments associated with this event. */
