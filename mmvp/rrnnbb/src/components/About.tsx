@@ -81,7 +81,7 @@ export const About: React.FC = () => {
            
             
             <br />
-            Built with <a href="https://envio.dev/">Envio</a> and inspired by <a href="https://txcity.io/v/eth-btc">TxCity</a>.
+            Built with <a href="https://envio.dev/">Envio</a> and <a href="https://docs.blockscout.com/devs/blockscout-sdk">BlockScout</a>. Inspired by <a href="https://txcity.io/v/eth-btc">TxCity</a>.
           </p>
 
           <p
