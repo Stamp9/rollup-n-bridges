@@ -5,7 +5,6 @@ import Board from "../assets/livecounter_chains/pixelboard.png";
 
 console.log("[useRelay24hAutoRefresh] mounted");
 
-
 export const TxCount24hPanel: React.FC = () => {
   const { perChain, total } = useRelay24hAutoRefresh();
 
@@ -65,7 +64,6 @@ export const TxCount24hPanel: React.FC = () => {
         marginTop: "-100px",
       }}
     >
-
       <h3
         style={{
           fontFamily: "'Press Start 2P', cursive",
@@ -109,7 +107,13 @@ export const TxCount24hPanel: React.FC = () => {
           }}
         >
           <span>Total</span>
-          <span style={{ paddingLeft: "18px", color: "#ec942fff", fontVariantNumeric: "tabular-nums" }}>
+          <span
+            style={{
+              paddingLeft: "18px",
+              color: "#ec942fff",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
             {total.toLocaleString()}
           </span>
         </div>

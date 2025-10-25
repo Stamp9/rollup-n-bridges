@@ -5,7 +5,9 @@ import {
 } from "@blockscout/app-sdk";
 import { BlockscoutPixelTheme } from "../style/BlockscoutPixelTheme";
 
-export const CustomBlockscoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const CustomBlockscoutProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => (
   <div className="blockscout-theme">
     <NotificationProvider>
       <TransactionPopupProvider>

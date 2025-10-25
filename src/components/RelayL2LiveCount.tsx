@@ -23,10 +23,30 @@ import EthIconRunning from "../assets/doggo2.gif";
 import PixelBox from "../assets/pixelbox.png";
 
 const CHAINS = [
-  { name: "Arbitrum", id: 42161, iconStatic: ArbitrumIconStatic, iconRunning: ArbitrumIconRunning },
-  { name: "Base", id: 8453, iconStatic: BaseIconStatic, iconRunning: BaseIconRunning },
-  { name: "Optimism", id: 10, iconStatic: OptimismIconStatic, iconRunning: OptimismIconRunning },
-  { name: "Ethereum", id: 1, iconStatic: EthIconStatic, iconRunning: EthIconRunning },
+  {
+    name: "Arbitrum",
+    id: 42161,
+    iconStatic: ArbitrumIconStatic,
+    iconRunning: ArbitrumIconRunning,
+  },
+  {
+    name: "Base",
+    id: 8453,
+    iconStatic: BaseIconStatic,
+    iconRunning: BaseIconRunning,
+  },
+  {
+    name: "Optimism",
+    id: 10,
+    iconStatic: OptimismIconStatic,
+    iconRunning: OptimismIconRunning,
+  },
+  {
+    name: "Ethereum",
+    id: 1,
+    iconStatic: EthIconStatic,
+    iconRunning: EthIconRunning,
+  },
 ];
 
 interface RelayDepositEvent {
@@ -38,30 +58,28 @@ interface RelayDepositEvent {
 
 const Cat = ({ iconStatic, iconRunning, name, setInfo }) => {
   const [hovered, setHovered] = useState(false);
-  return <img
-    onMouseOver={() => {
-      setHovered(true);
-      setInfo(name);
-    }}
-    onMouseOut={() => {
-      setHovered(false);
-      setInfo("");
-    }
-    }
-    src={hovered ? iconRunning : iconStatic}
-    alt={name}
-    style={{
-      position: "absolute",
-      left: "-24px",
-      width: "22px",
-      height: "22px",
-      filter: "drop-shadow(1px 1px 1px rgba(0,0,0,0.3))",
-    }}
-  />
-
-
-
-}
+  return (
+    <img
+      onMouseOver={() => {
+        setHovered(true);
+        setInfo(name);
+      }}
+      onMouseOut={() => {
+        setHovered(false);
+        setInfo("");
+      }}
+      src={hovered ? iconRunning : iconStatic}
+      alt={name}
+      style={{
+        position: "absolute",
+        left: "-24px",
+        width: "22px",
+        height: "22px",
+        filter: "drop-shadow(1px 1px 1px rgba(0,0,0,0.3))",
+      }}
+    />
+  );
+};
 
 export const RelayL2LiveCounter: React.FC = ({ setInfo }) => {
   const subs = {
@@ -120,20 +138,16 @@ export const RelayL2LiveCounter: React.FC = ({ setInfo }) => {
     }
 
     if (started) {
-      (Object.entries(subs) as [string, any][]).forEach(([chainName, { erc20, native }]) => {
-        const e = erc20.data?.RelayDepository_RelayErc20Deposit?.[0];
-        const n = native.data?.RelayDepository_RelayNativeDeposit?.[0];
-        if (e) handleTx(chainName, e);
-        if (n) handleTx(chainName, n);
-      });
+      (Object.entries(subs) as [string, any][]).forEach(
+        ([chainName, { erc20, native }]) => {
+          const e = erc20.data?.RelayDepository_RelayErc20Deposit?.[0];
+          const n = native.data?.RelayDepository_RelayNativeDeposit?.[0];
+          if (e) handleTx(chainName, e);
+          if (n) handleTx(chainName, n);
+        },
+      );
     }
-  }, [
-    started,
-    subs.Base,
-    subs.Optimism,
-    subs.Arbitrum,
-    subs.Ethereum,
-  ]);
+  }, [started, subs.Base, subs.Optimism, subs.Arbitrum, subs.Ethereum]);
 
   return (
     <div
@@ -163,7 +177,12 @@ export const RelayL2LiveCounter: React.FC = ({ setInfo }) => {
             height: "42px",
           }}
         >
-          <Cat iconRunning={chain.iconRunning} iconStatic={chain.iconStatic} name={chain.name} setInfo={setInfo} />
+          <Cat
+            iconRunning={chain.iconRunning}
+            iconStatic={chain.iconStatic}
+            name={chain.name}
+            setInfo={setInfo}
+          />
           <div
             style={{
               backgroundImage: `url(${PixelBox})`,

@@ -76,11 +76,18 @@ export const About: React.FC = () => {
             }}
           >
             Envio Gato is a ETHOnline Hackathon project.
-            <br /><br />
-            It is a real-time visualization of bridge transactions through Relay. Each cat represents a live transaction running across the bridge!
-
-            <br /><br />
-            Built with <a href="https://envio.dev/">Envio</a> and <a href="https://docs.blockscout.com/devs/blockscout-sdk">BlockScout</a>. Inspired by <a href="https://txcity.io/v/eth-btc">TxCity</a>.
+            <br />
+            <br />
+            It is a real-time visualization of bridge transactions through
+            Relay. Each cat represents a live transaction running across the
+            bridge!
+            <br />
+            <br />
+            Built with <a href="https://envio.dev/">Envio</a> and{" "}
+            <a href="https://docs.blockscout.com/devs/blockscout-sdk">
+              BlockScout
+            </a>
+            . Inspired by <a href="https://txcity.io/v/eth-btc">TxCity</a>.
           </p>
 
           <p
@@ -129,8 +136,9 @@ export const About: React.FC = () => {
                 }}
               />
             </div>
-
-            <div style={{ marginBottom: "0.5rem" }}>Our Pixel Art Collections:</div>
+            <div style={{ marginBottom: "0.5rem" }}>
+              Our Pixel Art Collections:
+            </div>
             <div
               style={{
                 display: "flex",
@@ -152,23 +160,27 @@ export const About: React.FC = () => {
                   border: "1px solid rgba(255,255,255,0.12)",
                 }}
               />
-
             </div>
-
-            <br />            Most block explorers and visualizations can be very informative but boring - we hoped to do something creative this hackathon and show
-            that such products can be fun while still being useful as well!
-
-
-            <br /><br />
-            P.S: We guessed that 'Envio' was named as such because it means 'send' in Spanish, so we named this project <i>'Envio Gato'</i> since we're sending cats across the bridge (and cats are great) :)
+            <br /> Most block explorers and visualizations can be very
+            informative but boring - we hoped to do something creative this
+            hackathon and show that such products can be fun while still being
+            useful as well!
             <br />
             <br />
-
-
+            P.S: We guessed that 'Envio' was named as such because it means
+            'send' in Spanish, so we named this project <i>'Envio Gato'</i>{" "}
+            since we're sending cats across the bridge (and cats are great) :)
+            <br />
+            <br />
           </div>
 
-
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "12px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "12px",
+            }}
+          >
             <button
               onClick={() => navigate("/")}
               aria-label="Back to cats"
@@ -194,8 +206,8 @@ export const About: React.FC = () => {
                   (e.currentTarget.style.transform = "translateY(0)")
                 }
                 onMouseDown={(e) =>
-                (e.currentTarget.style.transform =
-                  "translateY(0) scale(0.98)")
+                  (e.currentTarget.style.transform =
+                    "translateY(0) scale(0.98)")
                 }
                 onMouseUp={(e) =>
                   (e.currentTarget.style.transform = "translateY(-1px)")

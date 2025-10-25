@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client/react";
 
-
 import {
   RELAY_LATEST_BLOCK,
   RELAY_NATIVE_24,
@@ -32,34 +31,33 @@ export function useRelay24hAutoRefresh() {
     total: 0,
   });
 
-
-
-
-  async function fetchCount(queryText: string, chainId: number, minBlock: number): Promise<number> {
+  async function fetchCount(
+    queryText: string,
+    chainId: number,
+    minBlock: number,
+  ): Promise<number> {
     try {
-      const res = await fetch(import.meta.env.GRAPHQL_URL_HTTP || "http://localhost:8080/v1/graphql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-hasura-admin-secret": "testing",
+      const res = await fetch(
+        import.meta.env.GRAPHQL_URL_HTTP || "http://localhost:8080/v1/graphql",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-hasura-admin-secret": "testing",
+          },
+          body: JSON.stringify({
+            query: queryText,
+            variables: { chainId, minBlock },
+          }),
         },
-        body: JSON.stringify({
-          query: queryText,
-          variables: { chainId, minBlock },
-        }),
-      });
-
-
+      );
 
       if (!res.ok) {
         console.error(`[fetchCount] HTTP ${res.status} ${res.statusText}`);
         return 0;
       }
 
-
       const json = await res.json();
-
-
 
       if (!json || !json.data) {
         console.error("[fetchCount] Empty response:", json);
@@ -78,19 +76,16 @@ export function useRelay24hAutoRefresh() {
       console.error("[fetchCount Exception]", err);
       return 0;
     }
-
   }
 
   async function refresh24hCounts() {
     if (!metaData?.chain_metadata) return;
-
 
     const latest: Record<number, number> = Object.fromEntries(
       metaData.chain_metadata.map((m) => [m.chain_id, m.block_height]),
     );
     console.log("[latest blocks]", latest);
     console.log("[metaData in useRelay24hAutoRefresh]", metaData);
-
 
     const minBlock: Record<number, number> = {};
     CHAINS.forEach((c) => {
@@ -105,7 +100,9 @@ export function useRelay24hAutoRefresh() {
           fetchCount(RELAY_ERC20_24, c.id, minBlock[c.id]),
           fetchCount(RELAY_NATIVE_24, c.id, minBlock[c.id]),
         ]);
-        console.log(`[chain ${c.name}] ERC20=${erc20Count}, Native=${nativeCount}`);
+        console.log(
+          `[chain ${c.name}] ERC20=${erc20Count}, Native=${nativeCount}`,
+        );
         return { ...c, count: erc20Count + nativeCount };
       }),
     );

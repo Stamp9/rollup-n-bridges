@@ -6,7 +6,8 @@ export const RELAY_LATEST_BLOCK = gql`
       chain_id
       block_height
     }
-}`;
+  }
+`;
 
 export const RELAY_NATIVE_24 = `
   query dailyNativeCount($chainId: Int, $minBlock: Int) {
@@ -25,8 +26,6 @@ export const RELAY_ERC20_24 = `
       }
     }
   }`;
-
-
 
 export const ALOT_OF_DATA = `
   subscription verystupidsubscriptionidea {
@@ -47,4 +46,4 @@ export const ALOT_OF_DATA = `
       amount
     }
   }
-`
+`;

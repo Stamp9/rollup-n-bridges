@@ -12,15 +12,13 @@ import OPcatRunningSrc from "../assets/cattie2.gif";
 import EthereumRunningSrc from "../assets/doggo2.gif";
 import BasecatRunningSrc from "../assets/cattie1.gif";
 import SeagulSrc from "../assets/seagul.png";
-import ahhhh from '../assets/seagullsound.mp3'
+import ahhhh from "../assets/seagullsound.mp3";
 
 import Fries from "../assets/rnb.png";
-
 
 import { RelayL2LiveCounter } from "./RelayL2LiveCount";
 import { TxPanel } from "./TxPanel";
 import { TxCount24hPanel } from "./TxCount24hPanel";
-
 
 import {
   ERC20_BASE_SUB,
@@ -39,14 +37,12 @@ const svgHeight = 620;
 
 const islandNode = { id: "Island", type: "L1" as const, x: 220, y: 320 };
 
-
 export const chainNameToCat: Record<string, string> = {
   Ethereum: EthereumRunningSrc,
   Optimism: OPcatRunningSrc,
   Arbitrum: ABRuningSrc,
   Base: BasecatRunningSrc,
 };
-
 
 type ActiveParticle = {
   id: string;
@@ -59,9 +55,8 @@ type ActiveParticle = {
   from: string;
 };
 
-
 export function PiexelBridgeOverview() {
-  const audio = new Audio(ahhhh)
+  const audio = new Audio(ahhhh);
 
   const [particles, setParticles] = useState<ActiveParticle[]>([]);
   const [activeCat, setActiveCat] = useState<ActiveParticle | null>(null);
@@ -69,8 +64,6 @@ export function PiexelBridgeOverview() {
   const [showTxPanel, setShowTxPanel] = useState(false);
   const [info, setInfo] = useState("");
   const navigate = useNavigate();
-
-
 
   /** 🧩 Generic handler for new events */
   const handleIncoming = (chainName: string, data: any) => {
@@ -129,7 +122,9 @@ export function PiexelBridgeOverview() {
   useEffect(() => {
     const timer = setInterval(() => {
       const now = Date.now();
-      setParticles((prev) => prev.filter((p) => now - p.start < TX_DURATION_MS));
+      setParticles((prev) =>
+        prev.filter((p) => now - p.start < TX_DURATION_MS),
+      );
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -140,12 +135,13 @@ export function PiexelBridgeOverview() {
     const duration = TX_DURATION_MS / 1000;
 
     // Multi-lane offset for each chain
-    const yOffset = {
-      Arbitrum: -10,
-      Base: 0,
-      Optimism: 10,
-      Ethereum: 15,
-    }[p.chainName] ?? 0;
+    const yOffset =
+      {
+        Arbitrum: -10,
+        Base: 0,
+        Optimism: 10,
+        Ethereum: 15,
+      }[p.chainName] ?? 0;
 
     return (
       <motion.image
@@ -194,11 +190,9 @@ export function PiexelBridgeOverview() {
 
       <CustomBlockscoutProvider>
         <div className="fixed bottom-4 left-4 z-[10000] pointer-events-auto">
-          {activeCat ? <TxPanel
-            cat={{ ...activeCat }} /> : null}
+          {activeCat ? <TxPanel cat={{ ...activeCat }} /> : null}
         </div>
       </CustomBlockscoutProvider>
-
 
       <RelayL2LiveCounter setInfo={setInfo} />
 
@@ -229,7 +223,6 @@ export function PiexelBridgeOverview() {
         </h1>
       </header>
 
-
       {/* 🐦 Pixel Seagull toggle button */}
       <div
         onClick={() => {
@@ -252,7 +245,6 @@ export function PiexelBridgeOverview() {
           transition: "transform 0.1s ease",
         }}
         onMouseEnter={(e) => {
-
           setInfo("Tx 24hr stats");
           e.currentTarget.style.transform = "scale(1.1)";
         }}
@@ -283,8 +275,7 @@ export function PiexelBridgeOverview() {
         onMouseEnter={(e) => {
           setInfo("About");
           e.currentTarget.style.transform = "scale(1.1)";
-        }
-        }
+        }}
         onMouseLeave={(e) => {
           setInfo("");
           e.currentTarget.style.transform = "scale(1.0)";
@@ -292,18 +283,19 @@ export function PiexelBridgeOverview() {
         title="Go to About"
       />
 
-
-
-
       {/* Scene */}
-
 
       <svg
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         preserveAspectRatio="xMidYMid meet"
-        style={{ width: "100%", height: "auto", background: "transparent", zIndex: 20, position: "fixed" }}
+        style={{
+          width: "100%",
+          height: "auto",
+          background: "transparent",
+          zIndex: 20,
+          position: "fixed",
+        }}
       >
-
         <image
           href={Islands}
           x={islandNode.x - 110}
@@ -341,8 +333,7 @@ export function PiexelBridgeOverview() {
           />
         </g>
         {particles.map(renderCat)}
-      </svg >
-
+      </svg>
 
       {info !== "" && (
         <div>
@@ -375,9 +366,7 @@ export function PiexelBridgeOverview() {
             <strong>{info}</strong>
           </div>
         </div>
-      )
-      }
-
+      )}
     </>
   );
 }

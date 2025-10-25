@@ -1,7 +1,7 @@
 type RelayDepository_RelayErc20Deposit {
   id: ID!
-  timestamp: Int!,
-  tx_hash: String!,
+  timestamp: Int!
+  tx_hash: String!
   chain_id: Int!
   block_number: Int!
   from: String!
@@ -12,12 +12,11 @@ type RelayDepository_RelayErc20Deposit {
 
 type RelayDepository_RelayNativeDeposit {
   id: ID!
-  timestamp: Int!,
-  tx_hash: String!,
+  timestamp: Int!
+  tx_hash: String!
   chain_id: Int!
   block_number: Int!
   from: String!
   amount: BigInt!
   event_id: String!
 }
-

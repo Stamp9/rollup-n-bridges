@@ -3,9 +3,10 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 
-
-const HTTP_URL = import.meta.env.GRAPHQL_URL_HTTP || "http://localhost:8080/v1/graphql";
-const WS_URL = import.meta.env.GRAPHQL_URL_WS || "ws://localhost:8080/v1/graphql";
+const HTTP_URL =
+  import.meta.env.GRAPHQL_URL_HTTP || "http://localhost:8080/v1/graphql";
+const WS_URL =
+  import.meta.env.GRAPHQL_URL_WS || "ws://localhost:8080/v1/graphql";
 const ADMIN_SECRET = "testing";
 
 const httpLink = new HttpLink({
@@ -24,16 +25,18 @@ const wsLink = new GraphQLWsLink(
       closed: (e) => console.log("[Apollo WS] ❌ closed", e),
       error: (e) => console.error("[Apollo WS] ⚠️ error", e),
     },
-  })
+  }),
 );
 
 const splitLink = split(
   ({ query }) => {
     const def = getMainDefinition(query);
-    return def.kind === "OperationDefinition" && def.operation === "subscription";
+    return (
+      def.kind === "OperationDefinition" && def.operation === "subscription"
+    );
   },
   wsLink,
-  httpLink
+  httpLink,
 );
 
 export const apolloClient = new ApolloClient({

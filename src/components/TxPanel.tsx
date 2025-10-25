@@ -1,19 +1,14 @@
 "use client";
 import React from "react";
 import Board from "../assets/livecounter_chains/pixelboard.png";
-import {
-  useTransactionPopup
-} from "@blockscout/app-sdk";
+import { useTransactionPopup } from "@blockscout/app-sdk";
 
-const tokenMetadata: Record<
-  string,
-  { decimals: number; coingeckoId: string }
-> = {
-  USDC: { decimals: 6, coingeckoId: "usd-coin" },
-  USDT: { decimals: 6, coingeckoId: "tether" },
-  ETH: { decimals: 18, coingeckoId: "ethereum" },
-};
-
+const tokenMetadata: Record<string, { decimals: number; coingeckoId: string }> =
+  {
+    USDC: { decimals: 6, coingeckoId: "usd-coin" },
+    USDT: { decimals: 6, coingeckoId: "tether" },
+    ETH: { decimals: 18, coingeckoId: "ethereum" },
+  };
 
 interface TxPanelProps {
   cat: {
@@ -27,7 +22,6 @@ interface TxPanelProps {
     txHash: string;
   };
 }
-
 
 function formatTokenAmount(cat: any) {
   const symbol = cat.token || "ETH";
@@ -55,7 +49,6 @@ function formatTokenAmount(cat: any) {
   return `${formatted} ${symbol}`;
 }
 
-
 const truncateAddress = (address?: string): string =>
   !address
     ? "Unknown"
@@ -63,21 +56,15 @@ const truncateAddress = (address?: string): string =>
       ? address
       : `${address.slice(0, 6)}...${address.slice(-4)}`;
 
-
-
-
-
 export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
-
   const { openPopup } = useTransactionPopup();
 
   const viewHistory = (chainId: any, address: any) => {
     openPopup({
       chainId,
-      address // Optional
+      address, // Optional
     });
   };
-
 
   return (
     <div
@@ -119,9 +106,7 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         GATO LOG
       </div>
 
-
-
-      <div style={{ margin: "6px 0", color: "#000", paddingLeft: 20, }}>
+      <div style={{ margin: "6px 0", color: "#000", paddingLeft: 20 }}>
         Chain: <span style={{ color: "#000" }}>{cat.chainName}</span>
       </div>
 
@@ -158,9 +143,8 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
             transition: "opacity 0.2s",
             fontSize: 10,
           }}
-          onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
-          onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
-
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
         >
           {truncateAddress(cat.from)}
         </span>
@@ -177,7 +161,9 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
         <span
           onMouseDown={() =>
             window.open(
-              `https://relay.link/transaction/${cat.txHash}`, "_blank")
+              `https://relay.link/transaction/${cat.txHash}`,
+              "_blank",
+            )
           }
           style={{
             cursor: "pointer",
@@ -189,14 +175,12 @@ export const TxPanel: React.FC<TxPanelProps> = ({ cat }) => {
             transition: "opacity 0.2s",
             fontSize: 10,
           }}
-          onMouseEnter={(e) => ((e.currentTarget.style.opacity = "0.7"))}
-          onMouseLeave={(e) => ((e.currentTarget.style.opacity = "1"))}
-
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
         >
           {truncateAddress(cat.txHash)}
         </span>
       </div>
     </div>
-
   );
 };
