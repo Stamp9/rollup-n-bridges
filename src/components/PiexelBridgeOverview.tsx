@@ -5,29 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { CustomBlockscoutProvider } from "./PixelBlockscoutProvider";
 
 import PixelBox from "../assets/pixelbox.png";
-import Bridge from "../assets/Bridge.png";
-import islandSrc from "../assets/ethereum.png";
 import temBgSrc from "../assets/bg_new.png";
 import Islands from "../assets/islands.gif";
 import ABRuningSrc from "../assets/cattie3.gif";
 import OPcatRunningSrc from "../assets/cattie2.gif";
 import EthereumRunningSrc from "../assets/doggo2.gif";
 import BasecatRunningSrc from "../assets/cattie1.gif";
-import relayNodeSrc from "../assets/relay.png";
 import SeagulSrc from "../assets/seagul.png";
 import ahhhh from '../assets/seagullsound.mp3'
 
 import Fries from "../assets/rnb.png";
 
-import {
-  NotificationProvider,
-  TransactionPopupProvider,
-} from "@blockscout/app-sdk";
 
 import { RelayL2LiveCounter } from "./RelayL2LiveCount";
 import { TxPanel } from "./TxPanel";
 import { TxCount24hPanel } from "./TxCount24hPanel";
-import { NodeCircle } from "./NodeCircle";
 
 
 import {
@@ -46,8 +38,6 @@ const svgWidth = 900;
 const svgHeight = 620;
 
 const islandNode = { id: "Island", type: "L1" as const, x: 220, y: 320 };
-const relayNode = { id: "Relay", type: "Bridge" as const, x: 540, y: 320 };
-const fallbackDestinationColor = "#64748b";
 
 
 export const chainNameToCat: Record<string, string> = {
@@ -71,7 +61,7 @@ type ActiveParticle = {
 
 
 export function PiexelBridgeOverview() {
-  let audio = new Audio(ahhhh)
+  const audio = new Audio(ahhhh)
 
   const [particles, setParticles] = useState<ActiveParticle[]>([]);
   const [activeCat, setActiveCat] = useState<ActiveParticle | null>(null);

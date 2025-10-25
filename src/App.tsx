@@ -1,12 +1,6 @@
-import { useState } from "react";
-
 import { PiexelBridgeOverview } from "./components/PiexelBridgeOverview";
 
-type PageView = "network" | "bridge" | "piexel";
-
 export default function App() {
-  const [page, setPage] = useState<PageView>("piexel");
-
   return (
     <div
       style={{

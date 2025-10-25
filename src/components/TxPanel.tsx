@@ -1,11 +1,8 @@
 "use client";
 import React from "react";
-import { useRelay24hAutoRefresh } from "./useRelay24hCounts";
 import Board from "../assets/livecounter_chains/pixelboard.png";
 import { tokenMetadata } from "../data/model";
 import {
-  NotificationProvider,
-  TransactionPopupProvider,
   useTransactionPopup
 } from "@blockscout/app-sdk";
 
@@ -58,10 +55,6 @@ export const chainIdToEtherscan: Record<number, string> = {
 };
 
 
-function formatEtherscanLink(chain_id: any, tx_hash: any) {
-  console.log(chainIdToEtherscan[chain_id])
-  return `${chainIdToEtherscan[chain_id]}${tx_hash}`;
-}
 
 const truncateAddress = (address?: string): string =>
   !address
