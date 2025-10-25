@@ -1,75 +1,56 @@
-ALL THE ASSETS ARE PLACEHOLDER
 
-# Rollup & Bridge Monitor
 
-An interactive React + TypeScript dashboard for visualising bridging activity across L2 networks. The UI animates transaction flow between bridge protocols and layer-2 destinations, and offers multiple overview modes for exploring the data.
+# Envio Gato
+Envio Gato is an interactive, real-time visualization tool that brings Layer 2 bridging activity to life.
+
+Envio Gato turns blockchain data into motion — animating every cross-chain transaction as it flows through the Relay protocol.
+
+Track live transactions, explore sender histories, and see which Layer 2 network is most active — all in one playful interface.
 
 ## Key Features
 
-- Real-time data loop powered by `useBridgeData`, polling a local mock API for bridge transactions.
-- Animated network graph that shows token throughput between bridges and rollups with per-token tooltips.
-- Two detail views — **Bridge Overview** and the playful **Piexel Bridge Overview** — with sortable flow summaries and transaction timelines.
-- Protocol and destination filters to focus the visualisation on specific bridges or chains.
-- Mock data generator (`server.js`) that simulates block production and token transfers for rapid prototyping.
+- (˶ᵔ ᵕ ᵔ˶): Live transaction feed – watch every bridge transaction appear in real time
 
-## Architecture
+- ꉂ(˵˃ ᗜ ˂˵): Detailed view – inspect each transaction’s sender, amount, and chain
 
-- **Front end**: React 19 + Vite + TypeScript, with motion effects from `framer-motion`.
-- **Data layer**: `src/data/useBridgeData.ts` polls `http://localhost:8000`, aggregates transactions into `Link` objects and layer-2 flow summaries, and keeps a rolling history window.
-- **Visualisation components**: `NetworkGraph`, `BridgeOverview`, `PiexelBridgeOverview`, `TokenParticle`, and `NodeCircle` render the network, side panels, and animated particles.
-- **Mock API**: `server.js` exposes `/blockNumber` and `/bridgeTxs` endpoints and fabricates transactions on each poll loop.
+- 𐔌՞꜆.  ̫.꜀՞𐦯: Sender history – explore the past transactions of any address on a specific L2
+
+- (˶˃ ᵕ ˂˶): Network insights – instantly see which L2 is the most active through Relay
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 20+ (tested with npm).
-- npm (bundled with Node) or a compatible package manager.
+- Node.js 20+.
+- pnpm (bundled with Node) or a compatible package manager.
 
 ### Installation
 
+#### Backend
+
 1. Install dependencies:
    ```bash
-   npm install
+   pnpm install
    ```
-2. In a separate terminal start the mock API:
+2. Start the indexer:
    ```bash
-   npm run mock:api
+   pnpm indexter
    ```
-   The UI expects the API at `http://localhost:8000`. To target another host or port, update `API_BASE` in `src/data/api.ts`.
-3. Launch the Vite dev server:
+#### Frontend
+
+1. In a separate terminal, run:
    ```bash
    npm run dev
    ```
-4. Open `http://localhost:5173` in your browser.
+2. Open `http://localhost:5173` in your browser.
 
-### Available Scripts
+### About the Name
 
-- `npm run dev` — start the development server with hot module reloading.
-- `npm run build` — type-check and generate a production build.
-- `npm run preview` — serve the built app locally for smoke testing.
-- `npm run lint` — run ESLint across the project.
-- `npm run mock:api` — start the local bridge transaction generator.
+“Envio Gato” — “sending a cat” — playfully represents each transaction as a cat dashing across chains.
+Every bridge is a journey. Every cat is a transaction.
 
-## Project Structure
+### About the Pixel Art
+We drew all the pixel art by ourselves! Check out `./src/assets`!
 
-```
-.
-├── src/
-│   ├── assets/               # static images used in the Piexel view
-│   ├── components/           # graph, overview, and particle visualisations
-│   ├── data/                 # mock API client, aggregators, and models
-│   ├── App.tsx               # top-level layout and view switching
-│   └── main.tsx              # React bootstrap
-├── public/                   # static assets served by Vite
-├── server.js                 # local mock API for bridge data
-├── vite.config.ts            # Vite configuration
-└── package.json
-```
-
-## Extending the Prototype
-
-- Replace `server.js` with a real RPC or data service by adapting the fetch helpers in `src/data/api.ts`.
-- Tune `DEFAULT_HISTORY_WINDOW_MS` in `src/data/useBridgeData.ts` to change how much history is visualised.
-- Add new layer-2 destinations or bridge protocols via `src/data/model.ts` and corresponding component layouts.
-- Integrate additional analytics (e.g. latency or fee charts) by augmenting the aggregated data returned from `buildAggregatedData`.
+### License
+MIT License
