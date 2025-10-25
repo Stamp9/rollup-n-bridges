@@ -8,7 +8,7 @@ import PixelBox from "../assets/pixelbox.png";
 import Bridge from "../assets/Bridge.png";
 import islandSrc from "../assets/ethereum.png";
 import temBgSrc from "../assets/bg_new.png";
-import Islands from "../assets/movinguwuislands.GIF";
+import Islands from "../assets/islands.gif";
 import ABRuningSrc from "../assets/cattie3.gif";
 import OPcatRunningSrc from "../assets/cattie2.gif";
 import EthereumRunningSrc from "../assets/doggo2.gif";
