@@ -151,10 +151,10 @@ export function PiexelBridgeOverview() {
 
     // Multi-lane offset for each chain
     const yOffset = {
+      Arbitrum: -10,
       Base: 0,
       Optimism: 10,
-      Arbitrum: -20,
-      Ethereum: 20,
+      Ethereum: 15,
     }[p.chainName] ?? 0;
 
     return (
@@ -180,7 +180,6 @@ export function PiexelBridgeOverview() {
 
   return (
     <>
-
       <div
         style={{
           position: "fixed",
