@@ -17,5 +17,9 @@
   "include": [
     "src",
     "test"
+  ],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
   ]
 }
