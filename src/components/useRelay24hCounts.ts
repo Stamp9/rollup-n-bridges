@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client/react";
 
 
-
 import {
   RELAY_LATEST_BLOCK,
   RELAY_NATIVE_24,
@@ -33,11 +32,11 @@ export function useRelay24hAutoRefresh() {
   });
 
 
-  
 
-  async function fetchCount(queryText:string, chainId: number, minBlock: number): Promise<number> {
+
+  async function fetchCount(queryText: string, chainId: number, minBlock: number): Promise<number> {
     try {
-      const res = await fetch("http://localhost:8080/v1/graphql", {
+      const res = await fetch(import.meta.env.GRAPHQL_URL_HTTP || "http://localhost:8080/v1/graphql", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,13 +48,13 @@ export function useRelay24hAutoRefresh() {
         }),
       });
 
-      
+
 
       if (!res.ok) {
         console.error(`[fetchCount] HTTP ${res.status} ${res.statusText}`);
         return 0;
       }
-      
+
 
       const json = await res.json();
       // console.log("Fetch Count Raw Response:", json);
@@ -86,7 +85,7 @@ export function useRelay24hAutoRefresh() {
 
   async function refresh24hCounts() {
     if (!metaData?.chain_metadata) return;
-    
+
 
     const latest: Record<number, number> = Object.fromEntries(
       metaData.chain_metadata.map((m) => [m.chain_id, m.block_height]),

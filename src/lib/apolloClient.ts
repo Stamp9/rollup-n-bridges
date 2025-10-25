@@ -3,8 +3,9 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 
-const HTTP_URL =   "http://localhost:8080/v1/graphql";
-const WS_URL =  "ws://localhost:8080/v1/graphql";
+
+const HTTP_URL = import.meta.env.GRAPHQL_URL_HTTP || "http://localhost:8080/v1/graphql";
+const WS_URL = import.meta.env.GRAPHQL_URL_WS || "ws://localhost:8080/v1/graphql";
 const ADMIN_SECRET = "testing";
 
 const httpLink = new HttpLink({
@@ -19,10 +20,10 @@ const wsLink = new GraphQLWsLink(
       headers: { "x-hasura-admin-secret": ADMIN_SECRET },
     },
     on: {
-    connected: () => console.log("[Apollo WS] ✅ connected to", WS_URL),
-    closed: (e) => console.log("[Apollo WS] ❌ closed", e),
-    error: (e) => console.error("[Apollo WS] ⚠️ error", e),
-  },
+      connected: () => console.log("[Apollo WS] ✅ connected to", WS_URL),
+      closed: (e) => console.log("[Apollo WS] ❌ closed", e),
+      error: (e) => console.error("[Apollo WS] ⚠️ error", e),
+    },
   })
 );
 

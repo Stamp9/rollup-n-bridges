@@ -62,7 +62,7 @@ export default function App() {
           padding: "1.5rem",
         }}
       >
-        {page === "piexel" && <PiexelBridgeOverview />}
+        {<PiexelBridgeOverview />}
       </main>
     </div>
   );
