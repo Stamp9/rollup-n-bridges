@@ -8,6 +8,7 @@ import PixelBox from "../assets/pixelbox.png";
 import Bridge from "../assets/Bridge.png";
 import islandSrc from "../assets/ethereum.png";
 import temBgSrc from "../assets/bg_new.png";
+import Islands from "../assets/movinguwuislands.GIF";
 import ABRuningSrc from "../assets/cattie3.gif";
 import OPcatRunningSrc from "../assets/cattie2.gif";
 import EthereumRunningSrc from "../assets/doggo2.gif";
@@ -313,40 +314,58 @@ export function PiexelBridgeOverview() {
         preserveAspectRatio="xMidYMid meet"
         style={{ width: "100%", height: "auto", background: "transparent", zIndex: 20, position: "fixed" }}
       >
+
         <image
           onMouseOver={() => setInfo("Ethereum Island")}
           onMouseOut={() => setInfo("")}
-          href={islandSrc}
+          href={Islands}
           x={islandNode.x - 110}
           y={islandNode.y - 110}
-          width={220}
-          height={220}
+          width={600}
+          height={300}
           preserveAspectRatio="xMidYMid slice"
           style={{
             filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))",
+            zIndex: 1000,
           }}
         />
-        <image
-          href={Bridge}
-          width={100}
-          height={80}
-          x={islandNode.x + 110}
-          y={islandNode.y - 50}
-          style={{
-          }} />
 
-        <NodeCircle
-          x={relayNode.x}
-          y={relayNode.y}
-          label={relayNode.id}
-          type={relayNode.type}
-          imageSrc={relayNodeSrc}
-          imageRadius={72}
-          setInfo={setInfo}
-        />
-
+        {/*
+          //        <image
+          //          onMouseOver={() => setInfo("Ethereum Island")}
+          //          onMouseOut={() => setInfo("")}
+          //          href={islandSrc}
+          //          x={islandNode.x - 110}
+          //          y={islandNode.y - 110}
+          //          width={220}
+          //          height={220}
+          //          preserveAspectRatio="xMidYMid slice"
+          //          style={{
+          //            filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))",
+          //          }}
+          //        />
+          //        <image
+          //          href={Bridge}
+          //          width={100}
+          //          height={80}
+          //          x={islandNode.x + 110}
+          //          y={islandNode.y - 50}
+          //          style={{
+          //          }} />
+          //
+          //        <NodeCircle
+          //          x={relayNode.x}
+          //          y={relayNode.y}
+          //          label={relayNode.id}
+          //          type={relayNode.type}
+          //          imageSrc={relayNodeSrc}
+          //          imageRadius={72}
+          //          setInfo={setInfo}
+          //        />
+          //
+          */}
         {particles.map(renderCat)}
-      </svg>
+      </svg >
 
 
       {info !== "" && (
@@ -380,9 +399,9 @@ export function PiexelBridgeOverview() {
             <strong>{info}</strong>
           </div>
         </div>
-      )}
+      )
+      }
 
     </>
   );
 }
-
