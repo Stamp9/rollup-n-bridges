@@ -1,10 +1,18 @@
 "use client";
 import React from "react";
 import Board from "../assets/livecounter_chains/pixelboard.png";
-import { tokenMetadata } from "../data/model";
 import {
   useTransactionPopup
 } from "@blockscout/app-sdk";
+
+const tokenMetadata: Record<
+  string,
+  { decimals: number; coingeckoId: string }
+> = {
+  USDC: { decimals: 6, coingeckoId: "usd-coin" },
+  USDT: { decimals: 6, coingeckoId: "tether" },
+  ETH: { decimals: 18, coingeckoId: "ethereum" },
+};
 
 
 interface TxPanelProps {

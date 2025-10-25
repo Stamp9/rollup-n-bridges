@@ -7,7 +7,7 @@ import {
   RELAY_LATEST_BLOCK,
   RELAY_NATIVE_24,
   RELAY_ERC20_24,
-} from "../data/subscriptions_24";
+} from "../gql/subscriptions_24";
 
 interface ChainMeta {
   chain_id: number;

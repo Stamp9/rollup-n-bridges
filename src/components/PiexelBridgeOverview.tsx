@@ -31,7 +31,7 @@ import {
   NATIVE_OPTIMISM_SUB,
   NATIVE_ARBITRUM_SUB,
   NATIVE_ETHEREUM_SUB,
-} from "../data/subscriptions";
+} from "../gql/subscriptions";
 
 const TX_DURATION_MS = 7_000;
 const svgWidth = 900;

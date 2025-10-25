@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { ApolloProvider } from "@apollo/client/react";
-import { apolloClient } from "./lib/apolloClient";
+import { apolloClient } from "./apolloClient";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import App from "./App.tsx";

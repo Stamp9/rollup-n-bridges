@@ -10,7 +10,7 @@ import {
   NATIVE_OPTIMISM_SUB,
   NATIVE_ARBITRUM_SUB,
   NATIVE_ETHEREUM_SUB,
-} from "../data/subscriptions";
+} from "../gql/subscriptions";
 
 import BaseIconStatic from "../assets/livecounter_chains/base.png";
 import BaseIconRunning from "../assets/cattie1.gif";
