@@ -315,8 +315,6 @@ export function PiexelBridgeOverview() {
       >
 
         <image
-          onMouseOver={() => setInfo("Ethereum Island")}
-          onMouseOut={() => setInfo("")}
           href={Islands}
           x={islandNode.x - 110}
           y={islandNode.y - 110}
@@ -328,41 +326,30 @@ export function PiexelBridgeOverview() {
             zIndex: 1000,
           }}
         />
-
-        {/*
-          //        <image
-          //          onMouseOver={() => setInfo("Ethereum Island")}
-          //          onMouseOut={() => setInfo("")}
-          //          href={islandSrc}
-          //          x={islandNode.x - 110}
-          //          y={islandNode.y - 110}
-          //          width={220}
-          //          height={220}
-          //          preserveAspectRatio="xMidYMid slice"
-          //          style={{
-          //            filter: "drop-shadow(0 0 20px rgba(56, 189, 248, 0.35))",
-          //          }}
-          //        />
-          //        <image
-          //          href={Bridge}
-          //          width={100}
-          //          height={80}
-          //          x={islandNode.x + 110}
-          //          y={islandNode.y - 50}
-          //          style={{
-          //          }} />
-          //
-          //        <NodeCircle
-          //          x={relayNode.x}
-          //          y={relayNode.y}
-          //          label={relayNode.id}
-          //          type={relayNode.type}
-          //          imageSrc={relayNodeSrc}
-          //          imageRadius={72}
-          //          setInfo={setInfo}
-          //        />
-          //
-          */}
+        <g>
+          <rect
+            x={islandNode.x - 50}
+            y={islandNode.y - 50}
+            width={200}
+            height={220}
+            fill="red"
+            fillOpacity={0}
+            pointerEvents="all"
+            onMouseOver={() => setInfo("Ethereum Island")}
+            onMouseOut={() => setInfo("")}
+          />
+          <rect
+            x={islandNode.x + 250}
+            y={islandNode.y - 50}
+            width={200}
+            height={220}
+            fill="blue"
+            fillOpacity={0}
+            pointerEvents="all"
+            onMouseOver={() => setInfo("Relay Hub")}
+            onMouseOut={() => setInfo("")}
+          />
+        </g>
         {particles.map(renderCat)}
       </svg >
 
