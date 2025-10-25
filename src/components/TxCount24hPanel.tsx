@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useRelay24hAutoRefresh } from "./useRelay24hCounts"; 
+import { useRelay24hAutoRefresh } from "./useRelay24hCounts";
 import Board from "../assets/livecounter_chains/pixelboard.png";
 
 console.log("[useRelay24hAutoRefresh] mounted");
@@ -8,8 +8,6 @@ console.log("[useRelay24hAutoRefresh] mounted");
 
 export const TxCount24hPanel: React.FC = () => {
   const { perChain, total } = useRelay24hAutoRefresh();
-
-  // console.log("[24h counts render]", perChain, total);
 
   if (!perChain?.length) {
     return (
@@ -76,7 +74,7 @@ export const TxCount24hPanel: React.FC = () => {
           letterSpacing: "1px",
           paddingLeft: 28,
           paddingTop: 12,
-        }}  
+        }}
       >
         Cat SCOREBOARD
       </h3>
@@ -94,7 +92,7 @@ export const TxCount24hPanel: React.FC = () => {
             key={c.id}
             style={{
               display: "flex",
-            //   justifyContent: "space-between",
+              //   justifyContent: "space-between",
             }}
           >
             <span>{c.name}:</span>
@@ -104,24 +102,14 @@ export const TxCount24hPanel: React.FC = () => {
           </div>
         ))}
 
-        {/* <hr
-          style={{
-            border: 0,
-            borderTop: "1px solid #cbd5e1",
-            opacity: 0.6,
-            margin: "8px 0",
-          }}
-        /> */}
-
         <div
           style={{
             display: "flex",
-            // justifyContent: "space-between",
             fontWeight: 700,
           }}
         >
           <span>Total</span>
-          <span style={{paddingLeft: "18px", color: "#ec942fff", fontVariantNumeric: "tabular-nums" }}>
+          <span style={{ paddingLeft: "18px", color: "#ec942fff", fontVariantNumeric: "tabular-nums" }}>
             {total.toLocaleString()}
           </span>
         </div>

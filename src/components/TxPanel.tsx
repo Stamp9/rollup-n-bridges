@@ -47,14 +47,6 @@ function formatTokenAmount(cat: any) {
   return `${formatted} ${symbol}`;
 }
 
-export const chainIdToEtherscan: Record<number, string> = {
-  1: "https://etherscan.io/tx/",
-  10: "https://optimistic.etherscan.io/tx/",
-  42161: "https://arbiscan.io/tx/",
-  8453: "https://basescan.org/tx/",
-};
-
-
 
 const truncateAddress = (address?: string): string =>
   !address
