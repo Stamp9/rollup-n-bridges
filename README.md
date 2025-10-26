@@ -8,6 +8,8 @@ Envio Gato turns blockchain data into motion — animating every cross-chain tra
 
 Track live transactions, explore sender histories, and see which Layer 2 network is most active — all in one playful interface.
 
+![demo](./src/assets/demogif.gif)
+
 ## Key Features
 
 - (˶ᵔ ᵕ ᵔ˶): Live transaction feed – watch every bridge transaction appear in real time
