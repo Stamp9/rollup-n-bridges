@@ -6,8 +6,8 @@ import { ApolloProvider } from "@apollo/client/react";
 import { apolloClient } from "./apolloClient";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import App from "./App.tsx";
-import { About } from "./components/About.tsx";
+import App from "./App";
+import { About } from "./components/About";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

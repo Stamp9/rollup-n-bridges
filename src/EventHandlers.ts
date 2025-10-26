@@ -3,8 +3,8 @@
  */
 import {
   RelayDepository,
-  RelayDepository_RelayErc20Deposit,
-  RelayDepository_RelayNativeDeposit,
+  type RelayDepository_RelayErc20Deposit,
+  type RelayDepository_RelayNativeDeposit,
 } from "generated";
 
 RelayDepository.RelayErc20Deposit.handler(async ({ event, context }) => {

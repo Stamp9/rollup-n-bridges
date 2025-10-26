@@ -56,7 +56,14 @@ interface RelayDepositEvent {
   amount: string;
 }
 
-const Cat = ({ iconStatic, iconRunning, name, setInfo }) => {
+interface CatProps {
+  iconStatic: string,
+  iconRunning: string,
+  name: string,
+  setInfo: (name: string) => void,
+};
+
+const Cat: React.FC<CatProps> = ({ iconStatic, iconRunning, name, setInfo }) => {
   const [hovered, setHovered] = useState(false);
   return (
     <img
@@ -81,7 +88,7 @@ const Cat = ({ iconStatic, iconRunning, name, setInfo }) => {
   );
 };
 
-export const RelayL2LiveCounter: React.FC = ({ setInfo }) => {
+export const RelayL2LiveCounter: React.FC<{ setInfo: (name: string) => void }> = ({ setInfo }) => {
   const subs = {
     Base: {
       erc20: useSubscription(ERC20_BASE_SUB),
