@@ -1,5 +1,3 @@
-
-
 # Envio Gato
 Envio Gato is an interactive, real-time visualization tool that brings Layer 2 bridging activity to life.
 
@@ -34,7 +32,7 @@ Track live transactions, explore sender histories, and see which Layer 2 network
    ```
 2. Start the indexer:
    ```bash
-   pnpm indexter
+   pnpm indexer
    ```
 #### Frontend
 
