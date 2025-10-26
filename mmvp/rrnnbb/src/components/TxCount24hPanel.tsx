@@ -3,21 +3,21 @@ import React from "react";
 import { useRelay24hAutoRefresh } from "./useRelay24hCounts"; 
 import Board from "../assets/livecounter_chains/pixelboard.png";
 
-console.log("[TxCount24hPanel] mounted");
+console.log("[useRelay24hAutoRefresh] mounted");
 
 
 export const TxCount24hPanel: React.FC = () => {
   const { perChain, total } = useRelay24hAutoRefresh();
 
-  console.log("[24h counts render]", perChain, total);
+  // console.log("[24h counts render]", perChain, total);
 
   if (!perChain?.length) {
     return (
       <div
         style={{
           position: "fixed",
-          top: "50%",
-          left: "70%",
+          top: "60%",
+          left: "80%",
           width: 260,
           height: 200,
           backgroundImage: `url(${Board})`,
@@ -47,10 +47,10 @@ export const TxCount24hPanel: React.FC = () => {
     <div
       style={{
         position: "fixed",
-        top: "50%",
-        left: "70%",
+        top: "60%",
+        left: "80%",
         width: 260,
-        minHeight: 200,
+        minHeight: 220,
         backgroundImage: `url(${Board})`,
         backgroundSize: "100% 100%",
         backgroundPosition: "center",
@@ -67,6 +67,19 @@ export const TxCount24hPanel: React.FC = () => {
         marginTop: "-100px",
       }}
     >
+
+      <h3
+        style={{
+          fontFamily: "'Press Start 2P', cursive",
+          fontSize: 12,
+          color: "#7b9117ff",
+          letterSpacing: "1px",
+          paddingLeft: 28,
+          paddingTop: 12,
+        }}  
+      >
+        Cat SCOREBOARD
+      </h3>
       <div
         style={{
           display: "grid",
@@ -74,7 +87,6 @@ export const TxCount24hPanel: React.FC = () => {
           paddingRight: 8,
           columnGap: 12,
           paddingLeft: 24,
-          paddingTop: 24,
         }}
       >
         {perChain.map((c) => (
@@ -92,14 +104,14 @@ export const TxCount24hPanel: React.FC = () => {
           </div>
         ))}
 
-        <hr
+        {/* <hr
           style={{
             border: 0,
             borderTop: "1px solid #cbd5e1",
             opacity: 0.6,
             margin: "8px 0",
           }}
-        />
+        /> */}
 
         <div
           style={{
@@ -109,7 +121,7 @@ export const TxCount24hPanel: React.FC = () => {
           }}
         >
           <span>Total</span>
-          <span style={{paddingLeft: "18px" }}>
+          <span style={{paddingLeft: "18px", color: "#ec942fff", fontVariantNumeric: "tabular-nums" }}>
             {total.toLocaleString()}
           </span>
         </div>

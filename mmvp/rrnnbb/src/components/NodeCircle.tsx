@@ -14,6 +14,7 @@ export const NodeCircle: React.FC<NodeProps> = ({
   type,
   imageSrc,
   imageRadius,
+  setInfo,
 }) => {
   const baseRadius = 40;
   const radius = imageSrc ? (imageRadius ?? 48) : baseRadius;
@@ -23,6 +24,8 @@ export const NodeCircle: React.FC<NodeProps> = ({
     return (
       <g>
         <image
+          onMouseOver={() => setInfo("Relay Hub")}
+          onMouseOut={() => setInfo("")}
           href={imageSrc}
           x={x - radius}
           y={y - radius}

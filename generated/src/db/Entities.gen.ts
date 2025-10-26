@@ -14,7 +14,9 @@ export type RelayDepository_RelayErc20Deposit_t = {
   readonly event_id: string; 
   readonly from: string; 
   readonly id: id; 
-  readonly token: string
+  readonly timestamp: number; 
+  readonly token: string; 
+  readonly tx_hash: string
 };
 
 export type RelayDepository_RelayErc20Deposit_indexedFieldOperations = {};
@@ -25,7 +27,9 @@ export type RelayDepository_RelayNativeDeposit_t = {
   readonly chain_id: number; 
   readonly event_id: string; 
   readonly from: string; 
-  readonly id: id
+  readonly id: id; 
+  readonly timestamp: number; 
+  readonly tx_hash: string
 };
 
 export type RelayDepository_RelayNativeDeposit_indexedFieldOperations = {};

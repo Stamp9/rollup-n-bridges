@@ -88,9 +88,11 @@ module EventFunctions = {
   module MockTransaction = {
     @genType
     type t = {
+      hash?: string,
     }
 
     let toTransaction = (_mock: t) => {
+      hash: _mock.hash->Belt.Option.getWithDefault("foo"),
     }->(Utils.magic: Types.AggregatedTransaction.t => Internal.eventTransaction)
   }
 

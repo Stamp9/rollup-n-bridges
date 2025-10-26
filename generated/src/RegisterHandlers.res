@@ -119,7 +119,7 @@ let registerContractHandlers = (
         let chain = ChainMap.Chain.makeUnsafe(~chainId=42161)
         {
           InternalConfig.confirmedBlockThreshold: 0,
-          startBlock: 0,
+          startBlock: 374860000,
           id: 42161,
           contracts,
           sources: NetworkSources.evm(~chain, ~contracts=[{name: "RelayDepository",events: [Types.RelayDepository.RelayErc20Deposit.register(), Types.RelayDepository.RelayNativeDeposit.register()],abi: Types.RelayDepository.abi}], ~hyperSync=Some("https://42161.hypersync.xyz"), ~allEventSignatures=[Types.RelayDepository.eventSignatures]->Belt.Array.concatMany, ~shouldUseHypersyncClientDecoder=true, ~rpcs=[], ~lowercaseAddresses=false)

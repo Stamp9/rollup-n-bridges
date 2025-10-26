@@ -50,7 +50,9 @@ module RelayDepository_RelayErc20Deposit = {
     event_id: string,
     from: string,
     id: id,
+    timestamp: int,
     token: string,
+    tx_hash: string,
   }
 
   let schema = S.object((s): t => {
@@ -60,7 +62,9 @@ module RelayDepository_RelayErc20Deposit = {
     event_id: s.field("event_id", S.string),
     from: s.field("from", S.string),
     id: s.field("id", S.string),
+    timestamp: s.field("timestamp", S.int),
     token: s.field("token", S.string),
+    tx_hash: s.field("tx_hash", S.string),
   })
 
   let rowsSchema = S.array(schema)
@@ -134,7 +138,27 @@ module RelayDepository_RelayErc20Deposit = {
       
       ),
       mkField(
+      "timestamp", 
+      Integer,
+      ~fieldSchema=S.int,
+      
+      
+      
+      
+      
+      ),
+      mkField(
       "token", 
+      Text,
+      ~fieldSchema=S.string,
+      
+      
+      
+      
+      
+      ),
+      mkField(
+      "tx_hash", 
       Text,
       ~fieldSchema=S.string,
       
@@ -161,6 +185,8 @@ module RelayDepository_RelayNativeDeposit = {
     event_id: string,
     from: string,
     id: id,
+    timestamp: int,
+    tx_hash: string,
   }
 
   let schema = S.object((s): t => {
@@ -170,6 +196,8 @@ module RelayDepository_RelayNativeDeposit = {
     event_id: s.field("event_id", S.string),
     from: s.field("from", S.string),
     id: s.field("id", S.string),
+    timestamp: s.field("timestamp", S.int),
+    tx_hash: s.field("tx_hash", S.string),
   })
 
   let rowsSchema = S.array(schema)
@@ -237,6 +265,26 @@ module RelayDepository_RelayNativeDeposit = {
       Text,
       ~fieldSchema=S.string,
       ~isPrimaryKey,
+      
+      
+      
+      
+      ),
+      mkField(
+      "timestamp", 
+      Integer,
+      ~fieldSchema=S.int,
+      
+      
+      
+      
+      
+      ),
+      mkField(
+      "tx_hash", 
+      Text,
+      ~fieldSchema=S.string,
+      
       
       
       

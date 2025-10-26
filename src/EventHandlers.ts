@@ -10,6 +10,8 @@ import {
 RelayDepository.RelayErc20Deposit.handler(async ({ event, context }) => {
   const entity: RelayDepository_RelayErc20Deposit = {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
+    timestamp: event.block.timestamp,
+    tx_hash: event.transaction.hash,
     chain_id: event.chainId,
     block_number: event.block.number,
     from: event.params.from,
@@ -24,6 +26,8 @@ RelayDepository.RelayErc20Deposit.handler(async ({ event, context }) => {
 RelayDepository.RelayNativeDeposit.handler(async ({ event, context }) => {
   const entity: RelayDepository_RelayNativeDeposit = {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
+    timestamp: event.block.timestamp,
+    tx_hash: event.transaction.hash,
     chain_id: event.chainId,
     block_number: event.block.number,
     from: event.params.from,
