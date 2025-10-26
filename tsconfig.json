@@ -4,7 +4,7 @@
     "lib": ["es2020"],
     "allowJs": true,
     "checkJs": false,
-    "outDir": "build",
+    "outDir": "./build",
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "module": "CommonJS"
   },
-  "include": ["src", "test"],
+  "include": ["src/**/*", "test"],
+  "exclude": ["generated"],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

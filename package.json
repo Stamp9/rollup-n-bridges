@@ -2,7 +2,7 @@
   "name": "envio-indexer",
   "version": "0.1.0",
   "scripts": {
-    "clean": "tsc --clean",
+    "clean": "tsc -b --clean",
     "build": "tsc --build",
     "watch": "tsc --watch",
     "mocha": "ts-mocha test/**/*.ts",
@@ -10,7 +10,7 @@
     "indexer": "envio dev",
     "indexer:prod": "envio dev",
     "lint": "eslint .",
-    "dev": "GRAPHQL_URL_HTTP='https://indexer.dev.hyperindex.xyz/3f69f88/v1/graphql' GRAPHQL_URL_WS='ws://indexer.dev.hyperindex.xyz/3f69f88/v1/graphql' vite",
+    "dev": "vite",
     "start": "envio start",
     "test": "pnpm mocha"
   },
