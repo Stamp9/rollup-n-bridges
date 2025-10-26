@@ -1,7 +1,5 @@
 # Envio Gato
 
-**Check out a live demo [here](https://enviogato-production.up.railway.app/)!**
-
 Envio Gato is an interactive, real-time visualization tool that brings Layer 2 bridging activity to life.
 
 Envio Gato turns blockchain data into motion — animating every cross-chain transaction as it flows through the Relay protocol.
